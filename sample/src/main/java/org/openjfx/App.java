@@ -1,7 +1,5 @@
 package org.openjfx;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -13,11 +11,10 @@ import javafx.stage.Stage;
 
 public class App extends Application {
     private boolean stop;
+    private CreatureGraphicHandler[] creatures=new CreatureGraphicHandler[100];
     @Override
     public void start(Stage stage) {
         stop=false;
-        ConcurrentLinkedQueue<MoveData> moveQueue = new ConcurrentLinkedQueue<MoveData>();
-        TestExternalThread testExternalThread=new TestExternalThread(moveQueue);
         stage.setOnCloseRequest(event -> {
             stop=true;
         });
@@ -40,14 +37,16 @@ public class App extends Application {
         gc.setStroke(Color.RED);
         gc.setLineWidth(4);
         gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        double canvasWidth=canvas.getWidth();
+        double canvasHeight=canvas.getHeight();
         double standardUnitX=backgroundPane.maxWidthProperty().get()/1000;
         double standardUnitY=backgroundPane.maxHeightProperty().get()/1000;
         CreatureGraphicHandler creature=new CreatureGraphicHandler(standardUnitX*200,standardUnitY*200,standardUnitX*25,standardUnitX*25,Color.RED,gc);
         creature.place();
-        while () { 
-            
-        }
-        creature.move(standardUnitX*500,standardUnitY*500);
+        gc.clearRect(0, 0, canvasWidth, canvasHeight);
+        creature.setX(standardUnitX*500);
+        creature.setY(standardUnitY*500);
+        creature.place();
     }
 
     public static void main(String[] args) {

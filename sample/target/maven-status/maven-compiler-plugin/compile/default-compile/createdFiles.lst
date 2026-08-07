@@ -1,4 +1,6 @@
 org\openjfx\CreatureGraphicHandler.class
 module-info.class
+org\openjfx\MoveData.class
 org\openjfx\App.class
 org\openjfx\SystemInfo.class
+org\openjfx\TestExternalThread.class
