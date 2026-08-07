@@ -4,10 +4,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class CreatureGraphicHandler {
-    private int x,y,heigth,width;
+    private double x,y,heigth,width;
     private Color color;
     private GraphicsContext parenGraphicsContext;
-    public CreatureGraphicHandler( int x, int y,int heigth, int width,Color color,GraphicsContext parenGraphicsContext){
+    public CreatureGraphicHandler( double x, double y,double heigth, double width,Color color,GraphicsContext parenGraphicsContext){
         this.x=x;
         this.y=y;
         this.width=width;
@@ -15,7 +15,7 @@ public class CreatureGraphicHandler {
         this.color=color;
         this.parenGraphicsContext=parenGraphicsContext;
     }
-    public void move(int newX,int newY){
+    public void move(double newX,double newY){
         parenGraphicsContext.clearRect(x, y, width, heigth);
         this.x=newX;
         this.y=newY;

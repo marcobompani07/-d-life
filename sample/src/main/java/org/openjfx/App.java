@@ -1,5 +1,7 @@
 package org.openjfx;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -9,15 +11,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-
-
-/**SSSS
- * JavaFX App
- */
 public class App extends Application {
-
+    private boolean stop;
     @Override
     public void start(Stage stage) {
+        stop=false;
+        ConcurrentLinkedQueue<MoveData> moveQueue = new ConcurrentLinkedQueue<MoveData>();
+        TestExternalThread testExternalThread=new TestExternalThread(moveQueue);
+        stage.setOnCloseRequest(event -> {
+            stop=true;
+        });
         stage.setMaximized(true);
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #222222;"); 
@@ -37,9 +40,14 @@ public class App extends Application {
         gc.setStroke(Color.RED);
         gc.setLineWidth(4);
         gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        CreatureGraphicHandler creature=new CreatureGraphicHandler((int)(backgroundPane.maxWidthProperty().get()*0.2),(int)(backgroundPane.maxHeightProperty().get()*0.2),(int)(backgroundPane.maxHeightProperty().get()*0.05),(int)(backgroundPane.maxHeightProperty().get()*0.05),Color.RED,gc);
+        double standardUnitX=backgroundPane.maxWidthProperty().get()/1000;
+        double standardUnitY=backgroundPane.maxHeightProperty().get()/1000;
+        CreatureGraphicHandler creature=new CreatureGraphicHandler(standardUnitX*200,standardUnitY*200,standardUnitX*25,standardUnitX*25,Color.RED,gc);
         creature.place();
-        creature.move((int)(backgroundPane.maxWidthProperty().get()*0.5),(int)(backgroundPane.maxHeightProperty().get()*0.5));
+        while () { 
+            
+        }
+        creature.move(standardUnitX*500,standardUnitY*500);
     }
 
     public static void main(String[] args) {
