@@ -2,12 +2,14 @@ package org.openjfx;
 
 public class MovmentHandlingThread extends Thread{
     @Override
-    
-    public void start(CreatureGraphicHandler creatures){
+    public MovmentHandlingThread(Runnable update){
+
+    }
+    public void start(){
 
     }
 
     public void Stop(){
-        
+
     }
 }
