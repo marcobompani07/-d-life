@@ -12,7 +12,7 @@ public class MovmentHandlingThread extends Thread{
         stop=false;
     }
     @Override
-    public void start(){
+    public void run(){
         while (!stop){
             long startTime=System.currentTimeMillis();
             if (counter.getCounter()<2){

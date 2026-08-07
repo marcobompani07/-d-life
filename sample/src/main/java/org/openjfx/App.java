@@ -10,14 +10,9 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private boolean stop;
     private CreatureGraphicHandler[] creatures=new CreatureGraphicHandler[100];
     @Override
     public void start(Stage stage) {
-        stop=false;
-        stage.setOnCloseRequest(event -> {
-            stop=true;
-        });
         stage.setMaximized(true);
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #222222;"); 
@@ -41,12 +36,27 @@ public class App extends Application {
         double canvasHeight=canvas.getHeight();
         double standardUnitX=backgroundPane.maxWidthProperty().get()/1000;
         double standardUnitY=backgroundPane.maxHeightProperty().get()/1000;
-        CreatureGraphicHandler creature=new CreatureGraphicHandler(standardUnitX*200,standardUnitY*200,standardUnitX*25,standardUnitX*25,Color.RED,gc);
-        creature.place();
-        gc.clearRect(0, 0, canvasWidth, canvasHeight);
-        creature.setX(standardUnitX*500);
-        creature.setY(standardUnitY*500);
-        creature.place();
+        creatures[0]=new CreatureGraphicHandler(standardUnitX*200,standardUnitY*200,standardUnitX*25,standardUnitX*25,Color.RED,gc);
+        creatures[0].setX(standardUnitX*500);
+        creatures[0].setY(standardUnitY*500);
+        ThreadSafeUpdateQueueCounter counter=new ThreadSafeUpdateQueueCounter();
+        Runnable update=new Runnable() {
+            @Override
+            public void run(){
+                gc.clearRect(0, 0, canvasWidth, canvasHeight);
+                for (int i=0;i<creatures.length;i++) {
+                    creatures[i].place();
+                }
+                counter.decreaseCounter();
+            }
+        };
+        
+        MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(update,counter);
+        movmentHandlingThread.start();
+        stage.setOnCloseRequest(event -> {
+            movmentHandlingThread.Stop();
+        });
+       
     }
 
     public static void main(String[] args) {
