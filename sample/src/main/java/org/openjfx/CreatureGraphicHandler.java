@@ -48,8 +48,8 @@ public class CreatureGraphicHandler {
         this.width = width;
     }
     
-    public void place(){
+    public void place(double standardUnitX,double StandardUnitY){
         parenGraphicsContext.setFill(color);
-        parenGraphicsContext.fillRect(x, y, width, heigth);
+        parenGraphicsContext.fillRect(x*standardUnitX, y*StandardUnitY, width, heigth);
     }
 }
