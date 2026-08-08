@@ -3,22 +3,25 @@ package org.openjfx;
 public class ThreadSafeCreatureUpdateCounter {
 	private int counter;
 	private final int max;
-	private ThreadSafeCreatureArray creatureArray;
+	private ThreadSafeCreaturesArray creatureArray;
 
-	public ThreadSafeCreatureUpdateCounter(ThreadSafeCreatureArray creatureArray) {
+	public ThreadSafeCreatureUpdateCounter(ThreadSafeCreaturesArray creatureArray) {
 		this.creatureArray = creatureArray;
 		this.max = creatureArray.getLength();
 		this.counter = 0;
 	}
 
-	public synchronized int getNext() {
+	public synchronized int getNext() throws InterruptedException {
 		int current = counter;
 
-		while (creatureArray.getCreatureAtIndex(current) == null) {
+		while (creatureArray.request(current) == null) {
+			int old = current;
 			current++;
 			if (current >= max) {
 				current = 0;
 			}
+
+			creatureArray.release(old);
 		}
 
 		counter = current + 1;
