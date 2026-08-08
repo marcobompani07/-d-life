@@ -10,7 +10,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private CreatureGraphicHandler[] creatures=new CreatureGraphicHandler[100];
+    private Creature[] creatures=new Creature[100];
     @Override
     public void start(Stage stage) {
         stage.setMaximized(true);
@@ -36,17 +36,12 @@ public class App extends Application {
         double canvasHeight=canvas.getHeight();
         double standardUnitX=backgroundPane.maxWidthProperty().get()/1000;
         double standardUnitY=backgroundPane.maxHeightProperty().get()/1000;
-        creatures[0]=new CreatureGraphicHandler(standardUnitX*200,standardUnitY*200,standardUnitX*25,standardUnitX*25,Color.RED,gc);
-        ThreadSafeUpdateQueueCounter counter=new ThreadSafeUpdateQueueCounter();
+        creatures[0]=new Creature(0,standardUnitX*200,standardUnitY*200,standardUnitX*25,standardUnitX*25,Color.RED);
+        ThreadSafeUpdateMapQueueCounter counter=new ThreadSafeUpdateMapQueueCounter();
         Runnable update=new Runnable() {
             @Override
             public void run(){
-                gc.clearRect(0, 0, canvasWidth, canvasHeight);
-                for (int i=0;i<creatures.length;i++) {
-                    if(creatures[i]!=null){
-                        creatures[i].place(standardUnitX,standardUnitY);
-                    }
-                }
+                
                 counter.decreaseCounter();
             }
         };

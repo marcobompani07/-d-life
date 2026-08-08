@@ -1,9 +1,9 @@
 package org.openjfx;
 
-public class ThreadSafeUpdateQueueCounter {
+public class ThreadSafeUpdateMapQueueCounter {
     private int counter;
 
-    public ThreadSafeUpdateQueueCounter() {
+    public ThreadSafeUpdateMapQueueCounter() {
         counter=0;
     }
 

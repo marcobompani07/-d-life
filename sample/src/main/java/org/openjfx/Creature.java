@@ -1,26 +1,30 @@
 package org.openjfx;
 
+import javafx.scene.paint.Color;
+
 public class Creature {
 	private int id;
 	private double x;
 	private double y;
 	private double width;
 	private double height;
+	private Color color;
 
-	public Creature(int id, double x, double y, double width, double height) {
+	public Creature(int id, double x, double y, double width, double height,Color color) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		this.color= color;
 	}
 
 	public Creature (Creature c) {
-		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight());
+		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor());
 	}
 
 	public Creature() {
-		this(0, 0, 0, 10, 10);
+		this(0, 0, 0, 10, 10,Color.RED);
 	}
 
 	public void update(){
@@ -30,44 +34,53 @@ public class Creature {
 		move(newX, newY);
 	}
 
-	public void move(double newX, double newY) {
+	public synchronized void move(double newX, double newY) {
 		this.x = newX;
 		this.y = newY;
 	}
 
-	public int getId() {
+	public synchronized  int getId() {
 		return id;
 	}
 
-	public double getX() {
+	public synchronized double getX() {
 		return x;
 	}
 
-	public void setX(double x) {
+	public synchronized  void setX(double x) {
 		this.x = x;
 	}
 
-	public double getY() {
+	public synchronized double getY() {
 		return y;
 	}
 
-	public void setY(double y) {
+	public synchronized void setY(double y) {
 		this.y = y;
 	}
 
-	public double getWidth() {
+	public synchronized double getWidth() {
 		return width;
 	}
 
-	public void setWidth(double width) {
+	public synchronized void setWidth(double width) {
 		this.width = width;
 	}
 
-	public double getHeight() {
+	public synchronized double getHeight() {
 		return height;
 	}
 
-	public void setHeight(double height) {
+	public synchronized void setHeight(double height) {
 		this.height = height;
 	}
+
+	public synchronized Color getColor() {
+		return this.color;
+	}
+
+	public synchronized void setColor(Color color) {
+		this.color = color;
+	}
+
 }

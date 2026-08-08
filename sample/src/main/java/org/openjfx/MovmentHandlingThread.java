@@ -4,9 +4,9 @@ import javafx.application.Platform;
 
 public class MovmentHandlingThread extends Thread{  
     private Runnable update;
-    private ThreadSafeUpdateQueueCounter counter;
+    private ThreadSafeUpdateMapQueueCounter counter;
     private boolean stop;
-    public MovmentHandlingThread(Runnable update,ThreadSafeUpdateQueueCounter counter){
+    public MovmentHandlingThread(Runnable update,ThreadSafeUpdateMapQueueCounter counter){
         this.update=update;
         this.counter=counter;
         stop=false;
