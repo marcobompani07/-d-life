@@ -21,13 +21,21 @@ public class TreadSafeCreaturesArray {
             requestedCreatures[i]=true;
             return creatures[i];
         }else{
-            waitingThreads[i].offer(t);
+            waitingThreads[i].add(t);
             try{
-                
-            }catch(interrupted Exception)
-            t.wait();
+                wait();
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
             requestedCreatures[i]=true;
             return creatures[i];
+        }
+    }
+    public synchronized void release(int i){
+        if(!waitingThreads[i].isEmpty()){
+            waitingThreads[i].pop().notify();
+        }else{
+            requestedCreatures[i]=false;
         }
     }
 
