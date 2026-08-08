@@ -3,20 +3,21 @@ package org.openjfx;
 public class CreatureActionHandler {
 	private int creatureIndex;
 	private ThreadSafeCreatureUpdateCounter updateCounter;
-	private ThreadSafeCreatureArray creatureArray;
+	private ThreadSafeCreaturesArray creatureArray;
 
-	public CreatureActionHandler(ThreadSafeCreatureArray creatureArray, ThreadSafeCreatureUpdateCounter updateCounter) {
+	public CreatureActionHandler(ThreadSafeCreaturesArray creatureArray, ThreadSafeCreatureUpdateCounter updateCounter) throws InterruptedException {
 		this.creatureArray = creatureArray;
 		this.updateCounter = updateCounter;
 		this.creatureIndex = updateCounter.getNext();
 	}
 
-	public void updateCreature() {
-		Creature creature = creatureArray.getCreatureAtIndex(creatureIndex);
+	public void updateCreature() throws InterruptedException {
+		Creature creature = creatureArray.request(creatureIndex);
 		if (creature != null) {
 			creature.update();
 		}
 
+		creatureArray.release(creatureIndex);
 		creatureIndex = updateCounter.getNext();
 	}
 }

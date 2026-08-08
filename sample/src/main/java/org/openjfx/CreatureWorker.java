@@ -1,7 +1,7 @@
 package org.openjfx;
 
 public class CreatureWorker extends Thread  {
-	private boolean running;
+	private volatile boolean running;
 	private CreatureActionHandler actionHandler;
 
 	public CreatureWorker(CreatureActionHandler actionHandler) {
@@ -12,7 +12,12 @@ public class CreatureWorker extends Thread  {
 	@Override
 	public void run() {
 		while (running) {
-			actionHandler.updateCreature();
+			try {
+				actionHandler.updateCreature();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				break;
+			}
 		}
 	}
 
