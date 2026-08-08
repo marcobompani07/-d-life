@@ -1,9 +1,9 @@
 package org.openjfx;
 
-public class TreadSafeCreaturesArray {
+public class ThreadSafeCreaturesArray {
     private Creature[] creatures;
     private boolean[] requestedCreatures;
-    public TreadSafeCreaturesArray(Creature[] creatures) {
+    public ThreadSafeCreaturesArray(Creature[] creatures) {
         this.creatures = creatures;
         requestedCreatures=new boolean[creatures.length];
         for(int i=0;i<requestedCreatures.length;i++){

@@ -9,7 +9,7 @@ public class MapGrapychHandler {
     private  double standardUnitY;
     private  double canvasWidth;
     private  double canvasHeight;
-    private Creature[] creatures;
+    private ThreadSafeCreatureArray creatures;
 
 
     public MapGrapychHandler(GraphicsContext gc, double standardUnitX, double standardUnitY, double canvasWidth, double canvasHeight, Creature[] creatures) {
