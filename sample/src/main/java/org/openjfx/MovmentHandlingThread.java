@@ -26,9 +26,7 @@ public class MovmentHandlingThread extends Thread{
                 }
             }catch(InterruptedException e){
                 e.printStackTrace();
-            }
-            
-            
+            }  
         }
     }
 

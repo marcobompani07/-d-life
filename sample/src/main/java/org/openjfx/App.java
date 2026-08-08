@@ -37,15 +37,15 @@ public class App extends Application {
         double standardUnitX=backgroundPane.maxWidthProperty().get()/1000;
         double standardUnitY=backgroundPane.maxHeightProperty().get()/1000;
         creatures[0]=new CreatureGraphicHandler(standardUnitX*200,standardUnitY*200,standardUnitX*25,standardUnitX*25,Color.RED,gc);
-        creatures[0].setX(standardUnitX*500);
-        creatures[0].setY(standardUnitY*500);
         ThreadSafeUpdateQueueCounter counter=new ThreadSafeUpdateQueueCounter();
         Runnable update=new Runnable() {
             @Override
             public void run(){
                 gc.clearRect(0, 0, canvasWidth, canvasHeight);
                 for (int i=0;i<creatures.length;i++) {
-                    creatures[i].place();
+                    if(creatures[i]!=null){
+                        creatures[i].place(standardUnitX,standardUnitY);
+                    }
                 }
                 counter.decreaseCounter();
             }
@@ -53,6 +53,8 @@ public class App extends Application {
         
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(update,counter);
         movmentHandlingThread.start();
+        TestMoovmentThread testMoovmentThread=new TestMoovmentThread(creatures);
+        testMoovmentThread.start();
         stage.setOnCloseRequest(event -> {
             movmentHandlingThread.Stop();
         });
