@@ -30,6 +30,9 @@ public class TreadSafeCreaturesArray {
     public void setCreatures(Creature[] creatures) {
         this.creatures = creatures;
     }
+    public int getLength(){
+        return creatures.length;
+    }
 
 
 }
