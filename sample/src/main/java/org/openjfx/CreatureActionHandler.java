@@ -18,6 +18,5 @@ public class CreatureActionHandler {
 		}
 
 		creatureIndex = updateCounter.getNext();
-		updateCreature();
 	}
 }
