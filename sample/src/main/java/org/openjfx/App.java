@@ -38,18 +38,17 @@ public class App extends Application {
         double standardUnitY=backgroundPane.maxHeightProperty().get()/1000;
         creatures[0]=new Creature(0,standardUnitX*200,standardUnitY*200,standardUnitX*25,standardUnitX*25,Color.RED);
         ThreadSafeUpdateMapQueueCounter counter=new ThreadSafeUpdateMapQueueCounter();
+        ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
+        MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnitX,standardUnitY,canvasWidth,canvasHeight,creaturesArray);
         Runnable update=new Runnable() {
             @Override
             public void run(){
-                
+                mapGrapychHandler.update();
                 counter.decreaseCounter();
             }
         };
-        
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(update,counter);
         movmentHandlingThread.start();
-        TestMoovmentThread testMoovmentThread=new TestMoovmentThread(creatures);
-        testMoovmentThread.start();
         stage.setOnCloseRequest(event -> {
             movmentHandlingThread.Stop();
         });
