@@ -3,7 +3,7 @@ package org.openjfx;
 public class ThreadSafeCreatureUpdateCounter {
 	private int counter;
 	private final int max;
-	ThreadSafeCreatureArray creatureArray;
+	private ThreadSafeCreatureArray creatureArray;
 
 	public ThreadSafeCreatureUpdateCounter(ThreadSafeCreatureArray creatureArray) {
 		this.creatureArray = creatureArray;
