@@ -25,16 +25,14 @@ public class MovmentHandlingThread extends Thread{
                         Creature creature=creaturesArray.request(i);
                         creaturesArray.release(i);
                         if (creature!= null){
-                            outCreature[i]=new Creature(creaturesArray.request(i));
+                            outCreature[i]=new Creature(creature);
                         }else{
                             outCreature[i]=null;
                         }
-                        System.out.println("cocling");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-                System.out.println("runned");
                 Platform.runLater(updateRunnableGenerator.generate(outCreature));
             }
             long sleeptime= 10-(System.currentTimeMillis()-startTime);
@@ -45,10 +43,12 @@ public class MovmentHandlingThread extends Thread{
             }catch(InterruptedException e){
                 e.printStackTrace();
             }  
+            System.out.println(stop);
         }
     }
 
     public void Stop(){
         stop=true;
+        System.out.println("stopped");
     }
 }
