@@ -32,7 +32,6 @@ public class Creature {
 		double newY = this.y + Math.random() * 10 - 5;
 
 		move(newX, newY);
-		System.out.println("Creature " + id + " moved to (" + newX + ", " + newY + "), from thread: " + Thread.currentThread().getName());
 	}
 
 	public synchronized void move(double newX, double newY) {

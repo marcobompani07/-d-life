@@ -1,6 +1,7 @@
 package org.openjfx;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -10,9 +11,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private Creature[] creatures=new Creature[100];
+    private static final int MAX_CREATURES = 100;
+	private static final int INITIAL_CREATURES = 40;
+	private static final int WORKER_COUNT = 10;
+
+	private CreatureWorker[] workers;
+
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws InterruptedException {
         stage.setMaximized(true);
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #222222;"); 
@@ -36,15 +42,37 @@ public class App extends Application {
         double canvasHeight=canvas.getHeight();
         double standardUnitX=backgroundPane.maxWidthProperty().get()/1000;
         double standardUnitY=backgroundPane.maxHeightProperty().get()/1000;
-        creatures[0]=new Creature(0,standardUnitX*200,standardUnitY*200,standardUnitX*25,standardUnitX*25,Color.RED);
-        ThreadSafeUpdateMapQueueCounter counter=new ThreadSafeUpdateMapQueueCounter();
+
+		Creature[] creatures = new Creature[MAX_CREATURES];
+		
+		for(int i = 0; i < INITIAL_CREATURES; i++) {
+			creatures[i] = new Creature(i, Math.random() * canvas.getWidth(), Math.random() * canvas.getHeight(), 10, 10, Color.color(Math.random(), Math.random(), Math.random()));
+		}
+		
+		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
         ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
         MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnitX,standardUnitY,canvasWidth,canvasHeight);
-        UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, counter);
-        MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,counter,creaturesArray);
-        movmentHandlingThread.start();
+        UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
+        MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray);
+        ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
+		workers = new CreatureWorker[WORKER_COUNT];
+
+		for (int i = 0; i < WORKER_COUNT; i++) {
+			CreatureActionHandler actionHandler = new CreatureActionHandler(creaturesArray, updateCounter);
+			workers[i] = new CreatureWorker(actionHandler);
+			workers[i].start();
+		}
+
+		movmentHandlingThread.start();
         stage.setOnCloseRequest(event -> {
+
             movmentHandlingThread.Stop();
+
+			for (CreatureWorker worker : workers) {
+                worker.stopWorker();
+            }
+
+            Platform.exit();
         });
        
     }
