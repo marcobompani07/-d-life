@@ -1,14 +1,4 @@
 org\openjfx\Creature.class
-<<<<<<< HEAD
-module-info.class
-org\openjfx\CreatureActionHandler.class
-org\openjfx\ThreadSafeCreaturesArray.class
-org\openjfx\CreatureWorker.class
-org\openjfx\ThreadSafeCreatureUpdateCounter.class
-org\openjfx\ThreadSafeUpdateMapQueueCounter.class
-org\openjfx\MapGrapychHandler.class
-org\openjfx\MovmentHandlingThread.class
-=======
 org\openjfx\UpdateGuiRunnableGenerator$1.class
 org\openjfx\CreatureWorker.class
 org\openjfx\ThreadSafeUpdateMapQueueCounter.class
@@ -19,6 +9,5 @@ org\openjfx\CreatureActionHandler.class
 org\openjfx\ThreadSafeCreaturesArray.class
 org\openjfx\ThreadSafeCreatureUpdateCounter.class
 org\openjfx\MapGrapychHandler.class
->>>>>>> cc278fe583c96d71a3844504ca01e84349d4c329
 org\openjfx\App.class
 org\openjfx\SystemInfo.class
