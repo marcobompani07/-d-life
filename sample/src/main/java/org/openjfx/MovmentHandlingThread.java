@@ -43,12 +43,10 @@ public class MovmentHandlingThread extends Thread{
             }catch(InterruptedException e){
                 e.printStackTrace();
             }  
-            System.out.println(stop);
         }
     }
 
     public void Stop(){
         stop=true;
-        System.out.println("stopped");
     }
 }

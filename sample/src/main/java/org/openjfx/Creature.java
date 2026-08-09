@@ -28,8 +28,8 @@ public class Creature {
 	}
 
 	public void update(){
-		double newX = this.x + Math.random() * 10 - 5;
-		double newY = this.y + Math.random() * 10 - 5;
+		double newX = this.x + Math.random() * 2 - 1;
+		double newY = this.y + Math.random() * 2 - 1;
 
 		move(newX, newY);
 	}
