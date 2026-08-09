@@ -8,32 +8,25 @@ public class MapGrapychHandler {
     private  double standardUnitY;
     private  double canvasWidth;
     private  double canvasHeight;
-    private ThreadSafeCreaturesArray creatures;
 
 
-    public MapGrapychHandler(GraphicsContext gc, double standardUnitX, double standardUnitY, double canvasWidth, double canvasHeight,ThreadSafeCreaturesArray creatures) {
+    public MapGrapychHandler(GraphicsContext gc, double standardUnitX, double standardUnitY, double canvasWidth, double canvasHeight) {
         this.gc = gc;
         this.standardUnitX = standardUnitX;
         this.standardUnitY = standardUnitY;
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
-        this.creatures = creatures;
     }
    
 
-    public void update()  {
+    public void update(Creature[] creatures)  {
         gc.clearRect(0, 0, canvasWidth, canvasHeight);
-        for (int i=0;i<creatures.getLength();i++) {
-            try {
-                Creature creature=creatures.request(i);
-                if(creature!=null){
-                    gc.setFill(creature.getColor());
-                    gc.fillRect(creature.getX()*standardUnitX,creature.getY()*standardUnitY,creature.getWidth()*standardUnitX,creature.getHeight()*standardUnitX);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        for (int i=0;i<creatures.length;i++) {
+            Creature creature=creatures[i];
+            if(creature!=null){
+                gc.setFill(creature.getColor());
+                gc.fillRect(creature.getX()*standardUnitX,creature.getY()*standardUnitY,creature.getWidth()*standardUnitX,creature.getHeight()*standardUnitX);
             }
-            
         }
     }
 
