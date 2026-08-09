@@ -12,9 +12,8 @@ import javafx.stage.Stage;
 
 public class App extends Application {
     private static final int MAX_CREATURES = 100;
-	private static final int INITIAL_CREATURES = 40;
-	private static final int WORKER_COUNT = 10;
-
+	private static final int INITIAL_CREATURES = 100;
+	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 
     @Override
