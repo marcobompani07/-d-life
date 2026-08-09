@@ -18,6 +18,8 @@ public class ThreadSafeCreaturesArray {
         requestedCreatures[i]=true;
         return creatures[i];
     }
+
+
     public synchronized void release(int i){
         requestedCreatures[i]=false;
         notifyAll();
