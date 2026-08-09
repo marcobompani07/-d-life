@@ -14,14 +14,12 @@ public class ThreadSafeCreatureUpdateCounter {
 	public synchronized int getNext() throws InterruptedException {
 		int current = counter;
 
-		while (creatureArray.request(current) == null) {
-			int old = current;
+		while (creatureArray.getCreatures()[current] == null) {
 			current++;
+
 			if (current >= max) {
 				current = 0;
 			}
-
-			creatureArray.release(old);
 		}
 
 		counter = current + 1;

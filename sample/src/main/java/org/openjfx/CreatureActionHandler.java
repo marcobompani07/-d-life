@@ -13,6 +13,7 @@ public class CreatureActionHandler {
 
 	public void updateCreature() throws InterruptedException {
 		Creature creature = creatureArray.request(creatureIndex);
+		
 		if (creature != null) {
 			creature.update();
 		}
