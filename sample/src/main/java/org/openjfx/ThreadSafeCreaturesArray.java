@@ -13,15 +13,18 @@ public class ThreadSafeCreaturesArray {
 
     public synchronized Creature request(int i)throws InterruptedException{
         while(requestedCreatures[i]){
+            System.out.println("loked");
             wait();
         }
         requestedCreatures[i]=true;
+        System.out.println("aquired");
         return creatures[i];
     }
 
 
     public synchronized void release(int i){
         requestedCreatures[i]=false;
+        System.out.println("released");
         notifyAll();
     }
 

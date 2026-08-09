@@ -23,17 +23,18 @@ public class MovmentHandlingThread extends Thread{
                 for (int i=0;i<outCreature.length;i++){
                     try {
                         Creature creature=creaturesArray.request(i);
+                        creaturesArray.release(i);
                         if (creature!= null){
                             outCreature[i]=new Creature(creaturesArray.request(i));
                         }else{
                             outCreature[i]=null;
                         }
-                       
-                        creaturesArray.release(i);
+                        System.out.println("cocling");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
+                System.out.println("runned");
                 Platform.runLater(updateRunnableGenerator.generate(outCreature));
             }
             long sleeptime= 10-(System.currentTimeMillis()-startTime);
