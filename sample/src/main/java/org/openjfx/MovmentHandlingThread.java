@@ -22,7 +22,13 @@ public class MovmentHandlingThread extends Thread{
                 Creature[] outCreature=new Creature[creaturesArray.getLength()];
                 for (int i=0;i<outCreature.length;i++){
                     try {
-                        outCreature[i]=new Creature(creaturesArray.request(i));
+                        Creature creature=creaturesArray.request(i);
+                        if (creature!= null){
+                            outCreature[i]=new Creature(creaturesArray.request(i));
+                        }else{
+                            outCreature[i]=null;
+                        }
+                       
                         creaturesArray.release(i);
                     } catch (InterruptedException e) {
                         e.printStackTrace();

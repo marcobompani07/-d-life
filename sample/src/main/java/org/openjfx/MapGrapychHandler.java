@@ -20,6 +20,7 @@ public class MapGrapychHandler {
    
 
     public void update(Creature[] creatures)  {
+        System.out.println("updating");
         gc.clearRect(0, 0, canvasWidth, canvasHeight);
         for (int i=0;i<creatures.length;i++) {
             Creature creature=creatures[i];
