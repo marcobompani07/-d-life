@@ -1,7 +1,6 @@
 package org.openjfx;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 public class MapGrapychHandler {
     private GraphicsContext gc;
@@ -20,19 +19,13 @@ public class MapGrapychHandler {
     }
    
 
-    public void update(Creature[] creatures,Food[] foodArray)  {
+    public void update(Creature[] creatures)  {
         gc.clearRect(0, 0, canvasWidth, canvasHeight);
         for (int i=0;i<creatures.length;i++) {
             Creature creature=creatures[i];
             if(creature!=null){
                 gc.setFill(creature.getColor());
-                gc.fillRect(creature.getX()*standardUnitX,creature.getY()*standardUnitY,creature.getWidth()*standardUnitX,creature.getHeight()*standardUnitX);
-            }
-        }
-        for (int i=0;i<foodArray.length;i++){
-            if(foodArray[i]!=null){
-                gc.setFill(Color.LIME);
-                gc.fillOval(foodArray[i].getx()*standardUnitX, foodArray[i].getY()*standardUnitY, canvasWidth, canvasWidth);
+                gc.fillRect(creature.getX()*standardUnitX,creature.getY()*standardUnitY,creature.getWidth()*standardUnitX,creature.getHeight()*standardUnitY);
             }
         }
     }

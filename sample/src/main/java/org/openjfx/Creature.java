@@ -9,28 +9,32 @@ public class Creature {
 	private double width;
 	private double height;
 	private Color color;
+	private double speed;
 
-	public Creature(int id, double x, double y, double width, double height,Color color) {
+	public Creature(int id, double x, double y, double width, double height,Color color, double speed) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		this.speed = speed;
 		this.color= color;
 	}
 
 	public Creature (Creature c) {
-		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor());
+		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor(), c.getSpeed());
 	}
 
 	public Creature() {
-		this(0, 0, 0, 10, 10,Color.RED);
+		this(0, 0, 0, 10, 10,Color.RED, 2.0);
 	}
 
 	public void update(){
-		double newX = this.x + Math.random() * 2 - 1;
-		double newY = this.y + Math.random() * 2 - 1;
+		double newX = this.x + Math.random() * this.speed - this.speed / 2;
+		double newY = this.y + Math.random() * this.speed - this.speed / 2;
 
+		newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.width, newX));
+		newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.height, newY));
 		move(newX, newY);
 	}
 
@@ -81,6 +85,14 @@ public class Creature {
 
 	public synchronized void setColor(Color color) {
 		this.color = color;
+	}
+
+	public synchronized double getSpeed() {
+		return speed;
+	}
+
+	public synchronized void setSpeed(double speed) {
+		this.speed = speed;
 	}
 
 }
