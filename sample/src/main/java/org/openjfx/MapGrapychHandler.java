@@ -25,7 +25,7 @@ public class MapGrapychHandler {
             Creature creature=creatures[i];
             if(creature!=null){
                 gc.setFill(creature.getColor());
-                gc.fillRect(creature.getX()*standardUnitX,creature.getY()*standardUnitY,creature.getWidth()*standardUnitX,creature.getHeight()*standardUnitX);
+                gc.fillRect(creature.getX()*standardUnitX,creature.getY()*standardUnitY,creature.getWidth()*standardUnitX,creature.getHeight()*standardUnitY);
             }
         }
     }

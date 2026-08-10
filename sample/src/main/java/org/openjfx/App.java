@@ -15,6 +15,8 @@ public class App extends Application {
 	private static final int INITIAL_CREATURES = 100;
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
+	static final double WORLD_WIDTH = 1000;
+	static final double WORLD_HEIGHT = 1000;
 
     @Override
     public void start(Stage stage) throws InterruptedException {
@@ -39,13 +41,13 @@ public class App extends Application {
         gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
         double canvasWidth=canvas.getWidth();
         double canvasHeight=canvas.getHeight();
-        double standardUnitX=backgroundPane.maxWidthProperty().get()/1000;
-        double standardUnitY=backgroundPane.maxHeightProperty().get()/1000;
+        double standardUnitX=backgroundPane.maxWidthProperty().get()/WORLD_WIDTH;
+        double standardUnitY=backgroundPane.maxHeightProperty().get()/WORLD_HEIGHT;
 
 		Creature[] creatures = new Creature[MAX_CREATURES];
 		
 		for(int i = 0; i < INITIAL_CREATURES; i++) {
-			creatures[i] = new Creature(i, Math.random() *1000, Math.random() * 1000, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
+			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
 		}
 		
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
