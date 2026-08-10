@@ -32,7 +32,7 @@ public class MapGrapychHandler {
         for (int i=0;i<foodArray.length;i++){
             if(foodArray[i]!=null){
                 gc.setFill(Color.LIME);
-                gc.fill
+                gc.fillOval(foodArray[i].getx()*standardUnitX, foodArray[i].getY()*standardUnitY, canvasWidth, canvasWidth);
             }
         }
     }
