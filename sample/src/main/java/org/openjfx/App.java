@@ -45,7 +45,7 @@ public class App extends Application {
 		Creature[] creatures = new Creature[MAX_CREATURES];
 		
 		for(int i = 0; i < INITIAL_CREATURES; i++) {
-			creatures[i] = new Creature(i, Math.random() *1000, Math.random() * 1000, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 15 + 1);
+			creatures[i] = new Creature(i, Math.random() *1000, Math.random() * 1000, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
 		}
 		
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
