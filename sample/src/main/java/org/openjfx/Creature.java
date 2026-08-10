@@ -10,6 +10,7 @@ public class Creature {
 	private double height;
 	private Color color;
 	private double speed;
+	private double hunger;
 
 	public Creature(int id, double x, double y, double width, double height,Color color, double speed) {
 		this.id = id;
@@ -19,6 +20,7 @@ public class Creature {
 		this.height = height;
 		this.speed = speed;
 		this.color= color;
+		this.hunger = 0;
 	}
 
 	public Creature (Creature c) {
@@ -30,12 +32,18 @@ public class Creature {
 	}
 
 	public void update(){
-		double newX = this.x + Math.random() * this.speed - this.speed / 2;
-		double newY = this.y + Math.random() * this.speed - this.speed / 2;
 
-		newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.width, newX));
-		newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.height, newY));
-		move(newX, newY);
+		if(hunger < 100){
+			double newX = this.x + Math.random() * this.speed - this.speed / 2;
+			double newY = this.y + Math.random() * this.speed - this.speed / 2;
+
+			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.width, newX));
+			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.height, newY));
+			
+			move(newX, newY);
+
+			hunger += (this.speed / 100);
+		}
 	}
 
 	public synchronized void move(double newX, double newY) {
