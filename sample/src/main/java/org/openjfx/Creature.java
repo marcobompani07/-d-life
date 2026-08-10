@@ -34,15 +34,22 @@ public class Creature {
 	public void update(){
 
 		if(hunger < 100){
-			double newX = this.x + Math.random() * this.speed - this.speed / 2;
-			double newY = this.y + Math.random() * this.speed - this.speed / 2;
+			double weightedSpeed = this.speed;
+
+			if(hunger >= 60){
+				double hungerEffect = (hunger - 60) / 40;
+				weightedSpeed = this.speed * (1 - hungerEffect);
+			}
+
+			double newX = this.x + Math.random() * weightedSpeed - weightedSpeed / 2;
+			double newY = this.y + Math.random() * weightedSpeed - weightedSpeed / 2;
 
 			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.width, newX));
 			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.height, newY));
 			
 			move(newX, newY);
 
-			hunger += (this.speed / 100);
+			hunger +=  this.speed / 100;
 		}
 	}
 
