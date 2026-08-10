@@ -29,8 +29,9 @@ public class ThreadSafeCreatureUpdateCounter {
 		counter = current + 1;
 
 		if(counter >= max){
-			if ((System.currentTimeMillis()-startTime)<=10){
-				Thread.sleep(10-(System.currentTimeMillis()-startTime));
+			long currentTime=System.currentTimeMillis();
+			if ((currentTime-startTime)<=10){
+				Thread.sleep(10-(currentTime-startTime));
 			}
 			startTime=System.currentTimeMillis();
 			counter=0;

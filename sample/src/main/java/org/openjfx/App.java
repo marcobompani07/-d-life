@@ -45,16 +45,19 @@ public class App extends Application {
         double standardUnitY=backgroundPane.maxHeightProperty().get()/WORLD_HEIGHT;
 
 		Creature[] creatures = new Creature[MAX_CREATURES];
+        Food[] foodArray=new Food[MAX_CREATURES*10];
+        BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)WORLD_WIDTH][(int)WORLD_HEIGHT];
 		
 		for(int i = 0; i < INITIAL_CREATURES; i++) {
-			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
+			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, (10/standardUnitY)*standardUnitX, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
 		}
 		
+        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(foodArray, backgroundGrid);
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
         ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
         MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnitX,standardUnitY,canvasWidth,canvasHeight);
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
-        MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray);
+        MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,foodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
 		workers = new CreatureWorker[WORKER_COUNT];
 
@@ -63,12 +66,13 @@ public class App extends Application {
 			workers[i] = new CreatureWorker(actionHandler);
 			workers[i].start();
 		}
-
+        foodGeneratorThread.start();
 		movmentHandlingThread.start();
+        
         stage.setOnCloseRequest(event -> {
 
             movmentHandlingThread.Stop();
-
+            foodGeneratorThread.Stop();
 			for (CreatureWorker worker : workers) {
                 worker.stopWorker();
             }

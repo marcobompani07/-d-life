@@ -7,11 +7,11 @@ public class UpdateGuiRunnableGenerator  {
         this.mapGrapychHandler=mapGrapychHandler;
         this.counter=counter;
     }
-    public Runnable generate(Creature[] creatures){
+    public Runnable generate(Creature[] creatures, Food[] foodArray){
         return new Runnable() {
             @Override
             public void run(){
-                mapGrapychHandler.update(creatures);
+                mapGrapychHandler.update(creatures,foodArray);
                 counter.decreaseCounter();
             }
         };

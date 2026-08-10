@@ -7,10 +7,12 @@ public class MovmentHandlingThread extends Thread{
     private ThreadSafeUpdateMapQueueCounter counter;
     private boolean stop;
     private ThreadSafeCreaturesArray creaturesArray;
-    public MovmentHandlingThread(UpdateGuiRunnableGenerator updateRunnableGenerator,ThreadSafeUpdateMapQueueCounter counter, ThreadSafeCreaturesArray creaturesArray){
+    private Food[] foodArray;
+    public MovmentHandlingThread(UpdateGuiRunnableGenerator updateRunnableGenerator,ThreadSafeUpdateMapQueueCounter counter, ThreadSafeCreaturesArray creaturesArray,Food[] foodArray){
         this.updateRunnableGenerator=updateRunnableGenerator;
         this.counter=counter;
         this.creaturesArray=creaturesArray;
+        this.foodArray=foodArray;
         stop=false;
     }
     @Override
@@ -33,7 +35,8 @@ public class MovmentHandlingThread extends Thread{
                         e.printStackTrace();
                     }
                 }
-                Platform.runLater(updateRunnableGenerator.generate(outCreature));
+                Food[] outFoods=foodArray.clone();
+                Platform.runLater(updateRunnableGenerator.generate(outCreature,outFoods));
             }
             long sleeptime= 10-(System.currentTimeMillis()-startTime);
             try{
