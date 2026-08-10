@@ -26,12 +26,12 @@ public class Creature {
 	}
 
 	public Creature() {
-		this(0, 0, 0, 10, 10,Color.RED, 1.0);
+		this(0, 0, 0, 10, 10,Color.RED, 2.0);
 	}
 
 	public void update(){
-		double newX = this.x + Math.random() * 2 - 1;
-		double newY = this.y + Math.random() * 2 - 1;
+		double newX = this.x + Math.random() * this.speed - this.speed / 2;
+		double newY = this.y + Math.random() * this.speed - this.speed / 2;
 
 		move(newX, newY);
 	}
