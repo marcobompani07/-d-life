@@ -41,10 +41,8 @@ public class MovmentHandlingThread extends Thread{
                         Food food=foodArray.request(i);
                         if (food!= null){
                             outFoodArray[i]=new Food(food);
-                            System.out.println("added food:"+food);
                         }else{
                             outFoodArray[i]=null;
-                            System.out.println("not added food:"+food);
                         }
                         foodArray.release(i);
                     } catch (InterruptedException e) {

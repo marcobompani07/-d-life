@@ -5,16 +5,14 @@ import javafx.scene.paint.Color;
 
 public class MapGrapychHandler {
     private GraphicsContext gc;
-    private  double standardUnitX;
-    private  double standardUnitY;
+    private  double standardUnit;
     private  double canvasWidth;
     private  double canvasHeight;
 
 
-    public MapGrapychHandler(GraphicsContext gc, double standardUnitX, double standardUnitY, double canvasWidth, double canvasHeight) {
+    public MapGrapychHandler(GraphicsContext gc, double standardUnit , double canvasWidth, double canvasHeight) {
         this.gc = gc;
-        this.standardUnitX = standardUnitX;
-        this.standardUnitY = standardUnitY;
+        this.standardUnit = standardUnit;
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
     }
@@ -26,13 +24,13 @@ public class MapGrapychHandler {
             Creature creature=creatures[i];
             if(creature!=null){
                 gc.setFill(creature.getColor());
-                gc.fillRect(creature.getX()*standardUnitX,creature.getY()*standardUnitY,creature.getWidth()*standardUnitX,creature.getHeight()*standardUnitY);
+                gc.fillRect(creature.getX()*standardUnit,creature.getY()*standardUnit,creature.getWidth()*standardUnit,creature.getHeight()*standardUnit);
             }
         }
         for(int i=0;i<foodArray.length;i++){
             if(foodArray[i]!=null){
                 gc.setFill(Color.LIME);
-                gc.fillOval(foodArray[i].getX()*standardUnitX,foodArray[i].getY()*standardUnitY, 10*standardUnitX, 10*standardUnitX);
+                gc.fillOval(foodArray[i].getX()*standardUnit,foodArray[i].getY()*standardUnit, 10*standardUnit, 10*standardUnit);
                 
             }
         }
@@ -46,19 +44,11 @@ public class MapGrapychHandler {
         this.gc = gc;
     }
 
-    public double getStandardUnitX() {
-        return this.standardUnitX;
+    public double getstandardUnit() {
+        return this.standardUnit;
     }
 
-    public void setStandardUnitX(double standardUnitX) {
-        this.standardUnitX = standardUnitX;
-    }
-
-    public double getStandardUnitY() {
-        return this.standardUnitY;
-    }
-
-    public void setStandardUnitY(double standardUnitY) {
-        this.standardUnitY = standardUnitY;
+    public void setstandardUnit(double standardUnit) {
+        this.standardUnit = standardUnit;
     }
 }

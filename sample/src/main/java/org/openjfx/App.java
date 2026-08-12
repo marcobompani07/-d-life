@@ -16,7 +16,7 @@ public class App extends Application {
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 	static final double WORLD_WIDTH = 1000;
-	static final double WORLD_HEIGHT = 1000;
+	static double WORLD_HEIGHT = 0;
 
     @Override
     public void start(Stage stage) throws InterruptedException {
@@ -41,8 +41,8 @@ public class App extends Application {
         gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
         double canvasWidth=canvas.getWidth();
         double canvasHeight=canvas.getHeight();
-        double standardUnitX=backgroundPane.maxWidthProperty().get()/WORLD_WIDTH;
-        double standardUnitY=backgroundPane.maxHeightProperty().get()/WORLD_HEIGHT;
+        double standardUnit=backgroundPane.maxWidthProperty().get()/WORLD_WIDTH;
+        WORLD_HEIGHT=backgroundPane.maxHeightProperty().get()/standardUnit;
 
 		Creature[] creatures = new Creature[MAX_CREATURES];
         Food[] foodArray=new Food[MAX_CREATURES*10];
@@ -55,13 +55,13 @@ public class App extends Application {
         ThreadSafeFoodArray threadSafeFoodArray=new ThreadSafeFoodArray(foodArray);
 		
 		for(int i = 0; i < INITIAL_CREATURES; i++) {
-			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, (10/standardUnitY)*standardUnitX, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
+			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
 		}
 		
         FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,10);
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
         ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
-        MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnitX,standardUnitY,canvasWidth,canvasHeight);
+        MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnit,canvasWidth,canvasHeight);
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
