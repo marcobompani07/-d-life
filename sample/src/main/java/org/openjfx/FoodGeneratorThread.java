@@ -21,8 +21,8 @@ public class FoodGeneratorThread extends Thread{
                     Food food=foodArray.request(i);
                     if(food==null){
                         foodArray.release(i);
-                        int x=((int)(Math.random()*100));
-                        int y=((int)(Math.random()*100));
+                        int x=((int)(Math.random()*(((int)(App.WORLD_WIDTH/10))-10)));
+                        int y=((int)(Math.random()*(((int)(App.WORLD_HEIGHT/10))-10)));
                         /*while (backgroundGrid[x][y].getFood()!=-1){
                             x=((int)(Math.random()*100));
                             y=((int)(Math.random()*100));

@@ -100,7 +100,7 @@ public class App extends Application {
 			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() + 1, threadSafeFoodArray);
 		}
 		
-        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,10);
+        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,2);
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
         ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
