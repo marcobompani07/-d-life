@@ -43,45 +43,85 @@ public class Creature {
 				weightedSpeed = this.getSpeed() * (1 - hungerEffect);
 			}
 
-			double newX = this.getX() + Math.random() * weightedSpeed - weightedSpeed / 2;
-			double newY = this.getY() + Math.random() * weightedSpeed - weightedSpeed / 2;
+			Object [] closestFoodData = findClosesFood();
+			Food closestFood = (Food) closestFoodData[0];
+			double closestDistance = (double) closestFoodData[1];
+
+			double newX, newY;
+
+			if(closestFood != null && closestDistance > 0){
+				double directionX = (closestFood.getX() - this.getX()) / closestDistance;
+				double directionY = (closestFood.getY() - this.getY()) / closestDistance;
+
+				newX = this.getX() + directionX * weightedSpeed;
+				newY = this.getY() + directionY * weightedSpeed;	
+			}else{
+				newX = this.getX() + Math.random() * weightedSpeed - weightedSpeed / 2;
+				newY = this.getY() + Math.random() * weightedSpeed - weightedSpeed / 2;
+			}
 
 			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
 			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.getHeight(), newY));
 
-			int foodIndex = 0;
-			while (foodIndex < foodArray.getLength()) {
-				Food food = foodArray.request(foodIndex);
-
-				if (food != null) {
-					double foodX = food.getX();
-					double foodY = food.getY();
-
-					double creatureClosestX = Math.max(newX, Math.min(foodX, newX + this.getWidth()));
-					double creatureClosestY = Math.max(newY, Math.min(foodY, newY + this.getHeight()));
-
-					double distanceToFood = Math.sqrt(Math.pow(foodX - creatureClosestX, 2) + Math.pow(foodY - creatureClosestY, 2));
-
-					if (distanceToFood <= Food.FOOD_WIDTH / 2) {
-						this.setHunger(this.getHunger() - 20);
-
-						if (this.getHunger() < 0) {
-							this.setHunger(0);
-						}
-
-						foodArray.release(foodIndex);
-						foodArray.requestRemove(foodIndex);
-						break;
-					}
-				}
-
-				foodArray.release(foodIndex);
-				foodIndex++;
-			}
+			eatFood(newX, newY);
 			
 			move(newX, newY);
 
 			this.setHunger(this.getHunger() + this.getSpeed() / 100);
+		}
+	}
+
+	private Object[] findClosesFood() throws InterruptedException{
+		Food closestFood = null;
+		double closestDistance = Double.MAX_VALUE;
+
+		for (int i = 0; i < foodArray.getLength(); i++){
+			Food food = foodArray.request(i);
+
+			if (food != null) {
+				double distance = Math.sqrt(Math.pow(food.getX() - this.getX(), 2) + Math.pow(food.getY() - this.getY(), 2));
+
+				if (distance < closestDistance) {
+					closestDistance = distance;
+					closestFood = food;
+				}
+			}
+
+			foodArray.release(i);
+		}
+
+		return new Object[]{closestFood, closestDistance};
+	}
+
+	private void eatFood(double newX, double newY) throws InterruptedException{
+		int foodIndex = 0;
+		while (foodIndex < foodArray.getLength()) {
+			Food food = foodArray.request(foodIndex);
+
+			if (food != null) {
+				double foodX = food.getX();
+				double foodY = food.getY();
+
+				double creatureClosestX = Math.max(newX, Math.min(foodX, newX + this.getWidth()));
+				double creatureClosestY = Math.max(newY, Math.min(foodY, newY + this.getHeight()));
+
+				double distanceToFood = Math.sqrt(Math.pow(foodX - creatureClosestX, 2) + Math.pow(foodY - creatureClosestY, 2));
+
+				if (distanceToFood <= Food.FOOD_WIDTH / 2) {
+					this.setHunger(this.getHunger() - 20);
+
+					if (this.getHunger() < 0) {
+						this.setHunger(0);
+					}
+
+					foodArray.release(foodIndex);
+					foodArray.requestRemove(foodIndex);
+					break;
+				}
+			}
+
+			foodArray.release(foodIndex);
+			foodIndex++;
 		}
 	}
 
