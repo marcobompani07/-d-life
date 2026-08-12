@@ -7,8 +7,8 @@ public class MovmentHandlingThread extends Thread{
     private ThreadSafeUpdateMapQueueCounter counter;
     private boolean stop;
     private ThreadSafeCreaturesArray creaturesArray;
-    private Food[] foodArray;
-    public MovmentHandlingThread(UpdateGuiRunnableGenerator updateRunnableGenerator,ThreadSafeUpdateMapQueueCounter counter, ThreadSafeCreaturesArray creaturesArray,Food[] foodArray){
+    private ThreadSafeFoodArray foodArray;
+    public MovmentHandlingThread(UpdateGuiRunnableGenerator updateRunnableGenerator,ThreadSafeUpdateMapQueueCounter counter, ThreadSafeCreaturesArray creaturesArray,ThreadSafeFoodArray foodArray){
         this.updateRunnableGenerator=updateRunnableGenerator;
         this.counter=counter;
         this.creaturesArray=creaturesArray;
@@ -25,18 +25,33 @@ public class MovmentHandlingThread extends Thread{
                 for (int i=0;i<outCreature.length;i++){
                     try {
                         Creature creature=creaturesArray.request(i);
-                        creaturesArray.release(i);
                         if (creature!= null){
                             outCreature[i]=new Creature(creature);
                         }else{
                             outCreature[i]=null;
                         }
+                        creaturesArray.release(i);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-                Food[] outFoods=foodArray.clone();
-                Platform.runLater(updateRunnableGenerator.generate(outCreature,outFoods));
+                Food[] outFoodArray=new Food[foodArray.getLength()];
+                for (int i=0;i<outFoodArray.length;i++){
+                    try {
+                        Food food=foodArray.request(i);
+                        if (food!= null){
+                            outFoodArray[i]=new Food(food);
+                            System.out.println("added food:"+food);
+                        }else{
+                            outFoodArray[i]=null;
+                            System.out.println("not added food:"+food);
+                        }
+                        foodArray.release(i);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Platform.runLater(updateRunnableGenerator.generate(outCreature,outFoodArray));
             }
             long sleeptime= 10-(System.currentTimeMillis()-startTime);
             try{
