@@ -11,8 +11,9 @@ public class Creature {
 	private Color color;
 	private double speed;
 	private double hunger;
+	private ThreadSafeFoodArray foodArray;
 
-	public Creature(int id, double x, double y, double width, double height,Color color, double speed) {
+	public Creature(int id, double x, double y, double width, double height,Color color, double speed, ThreadSafeFoodArray foodArray) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -21,14 +22,15 @@ public class Creature {
 		this.speed = speed;
 		this.color= color;
 		this.hunger = 0;
+		this.foodArray = foodArray;
 	}
 
 	public Creature (Creature c) {
-		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor(), c.getSpeed());
+		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor(), c.getSpeed(), c.getFoodArray());
 	}
 
 	public Creature() {
-		this(0, 0, 0, 10, 10,Color.RED, 2.0);
+		this(0, 0, 0, 10, 10,Color.RED, 2.0, new ThreadSafeFoodArray());
 	}
 
 	public void update(){
@@ -46,6 +48,30 @@ public class Creature {
 
 			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.width, newX));
 			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.height, newY));
+
+			while (foodArray.getLength() > 0) {
+				Food food = foodArray.request(0);
+
+				if (food != null) {
+					double foodX = food.getX();
+					double foodY = food.getY();
+
+					double distanceToFood = Math.sqrt(Math.pow(foodX - newX, 2) + Math.pow(foodY - newY, 2));
+
+					if (distanceToFood < this.width / 2 + food.getWidth() / 2) {
+						hunger -= 20;
+
+						if (hunger < 0) {
+							hunger = 0;
+						}
+
+						foodArray.release(0);
+						break;
+					}
+				}
+				
+				foodArray.release(0);
+			}
 			
 			move(newX, newY);
 
@@ -108,6 +134,18 @@ public class Creature {
 
 	public synchronized void setSpeed(double speed) {
 		this.speed = speed;
+	}
+
+	public synchronized double getHunger() {
+		return hunger;
+	}
+
+	public synchronized void setHunger(double hunger) {
+		this.hunger = hunger;
+	}
+
+	public synchronized ThreadSafeFoodArray getFoodArray() {
+		return foodArray;
 	}
 
 }
