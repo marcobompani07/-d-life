@@ -5,8 +5,10 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -40,9 +42,22 @@ public class App extends Application {
         backgroundPane.getChildren().add(canvas);
         double canvasWidth=canvas.getWidth();
         double canvasHeight=canvas.getHeight();
-
         double standardUnit=backgroundPane.maxWidthProperty().get()/WORLD_WIDTH;
         WORLD_HEIGHT=backgroundPane.maxHeightProperty().get()/standardUnit;
+        Spinner<Integer> zoomSpinner=new Spinner(10,500,100,10);
+        zoomSpinner.setEditable(true);
+        //zoomSpinner.setTranslateX(15*standardUnit);
+        Button zoomButton = new Button("SetZoom");
+        zoomButton.setOnAction(e -> {
+            ZOOM=((double)zoomSpinner.getValue())/100;
+            System.out.println("zoom:"+ZOOM);
+        });
+        HBox topBar = new HBox(10*standardUnit, zoomSpinner,zoomButton);
+        topBar.setStyle("-fx-padding: "+(10*standardUnit)+"px;-fx-background-color: #494848;");
+        topBar.setSpacing(15*standardUnit);
+        root.setTop(topBar);
+
+        
 
 
 
