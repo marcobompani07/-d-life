@@ -11,8 +11,9 @@ public class Creature {
 	private Color color;
 	private double speed;
 	private double hunger;
+	private ThreadSafeFoodArray foodArray;
 
-	public Creature(int id, double x, double y, double width, double height,Color color, double speed) {
+	public Creature(int id, double x, double y, double width, double height,Color color, double speed, ThreadSafeFoodArray foodArray) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -21,35 +22,65 @@ public class Creature {
 		this.speed = speed;
 		this.color= color;
 		this.hunger = 0;
+		this.foodArray = foodArray;
 	}
 
 	public Creature (Creature c) {
-		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor(), c.getSpeed());
+		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor(), c.getSpeed(), c.getFoodArray());
 	}
 
 	public Creature() {
-		this(0, 0, 0, 10, 10,Color.RED, 2.0);
+		this(0, 0, 0, 10, 10,Color.RED, 2.0, null);
 	}
 
-	public void update(){
+	public void update() throws InterruptedException{
 
-		if(hunger < 100){
-			double weightedSpeed = this.speed;
+		if(this.getHunger() < 100){
+			double weightedSpeed = this.getSpeed();
 
-			if(hunger >= 60){
-				double hungerEffect = (hunger - 60) / 40;
-				weightedSpeed = this.speed * (1 - hungerEffect);
+			if(this.getHunger() >= 60){
+				double hungerEffect = (this.getHunger() - 60) / 40;
+				weightedSpeed = this.getSpeed() * (1 - hungerEffect);
 			}
 
-			double newX = this.x + Math.random() * weightedSpeed - weightedSpeed / 2;
-			double newY = this.y + Math.random() * weightedSpeed - weightedSpeed / 2;
+			double newX = this.getX() + Math.random() * weightedSpeed - weightedSpeed / 2;
+			double newY = this.getY() + Math.random() * weightedSpeed - weightedSpeed / 2;
 
-			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.width, newX));
-			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.height, newY));
+			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
+			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.getHeight(), newY));
+
+			int foodIndex = 0;
+			while (foodIndex < foodArray.getLength()) {
+				Food food = foodArray.request(foodIndex);
+
+				if (food != null) {
+					double foodX = food.getX();
+					double foodY = food.getY();
+
+					double creatureClosestX = Math.max(newX, Math.min(foodX, newX + this.getWidth()));
+					double creatureClosestY = Math.max(newY, Math.min(foodY, newY + this.getHeight()));
+
+					double distanceToFood = Math.sqrt(Math.pow(foodX - creatureClosestX, 2) + Math.pow(foodY - creatureClosestY, 2));
+
+					if (distanceToFood <= Food.FOOD_WIDTH / 2) {
+						this.setHunger(this.getHunger() - 20);
+
+						if (this.getHunger() < 0) {
+							this.setHunger(0);
+						}
+
+						foodArray.release(foodIndex);
+						break;
+					}
+				}
+
+				foodArray.release(foodIndex);
+				foodIndex++;
+			}
 			
 			move(newX, newY);
 
-			hunger +=  this.speed / 100;
+			this.setHunger(this.getHunger() + this.getSpeed() / 100);
 		}
 	}
 
@@ -108,6 +139,18 @@ public class Creature {
 
 	public synchronized void setSpeed(double speed) {
 		this.speed = speed;
+	}
+
+	public synchronized double getHunger() {
+		return hunger;
+	}
+
+	public synchronized void setHunger(double hunger) {
+		this.hunger = hunger;
+	}
+
+	public synchronized ThreadSafeFoodArray getFoodArray() {
+		return foodArray;
 	}
 
 }

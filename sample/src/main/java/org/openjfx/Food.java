@@ -5,6 +5,9 @@ public class Food {
     private int categoryId;
     private int x;
     private int y;
+	public static final int FOOD_WIDTH = 10;
+	public static final int FOOD_HEIGHT = 10;
+
     public Food(int id,int categoryId,int x,int y){
         this.id=id;
         this.categoryId=categoryId;
