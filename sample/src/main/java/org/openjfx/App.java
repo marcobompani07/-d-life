@@ -5,18 +5,20 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Spinner;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private static final int MAX_CREATURES = 1000;
+    private static final int MAX_CREATURES = 100;
 	private static final int INITIAL_CREATURES = 100;
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 	static final double WORLD_WIDTH = 1000;
 	static double WORLD_HEIGHT = 0;
+    static double ZOOM=1;
 
     @Override
     public void start(Stage stage) throws InterruptedException {
@@ -36,13 +38,13 @@ public class App extends Application {
         canvas.heightProperty().bind(backgroundPane.maxHeightProperty());
         GraphicsContext gc = canvas.getGraphicsContext2D();
         backgroundPane.getChildren().add(canvas);
-        gc.setStroke(Color.RED);
-        gc.setLineWidth(4);
-        gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
         double canvasWidth=canvas.getWidth();
         double canvasHeight=canvas.getHeight();
+
         double standardUnit=backgroundPane.maxWidthProperty().get()/WORLD_WIDTH;
         WORLD_HEIGHT=backgroundPane.maxHeightProperty().get()/standardUnit;
+
+
 
 		Creature[] creatures = new Creature[MAX_CREATURES];
         Food[] foodArray=new Food[MAX_CREATURES*10];
@@ -55,7 +57,7 @@ public class App extends Application {
         ThreadSafeFoodArray threadSafeFoodArray=new ThreadSafeFoodArray(foodArray);
 		
 		for(int i = 0; i < INITIAL_CREATURES; i++) {
-			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1, threadSafeFoodArray);
+			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
 		}
 		
         FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,10);
