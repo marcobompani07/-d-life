@@ -64,7 +64,6 @@ public class Creature {
 
 					if (distanceToFood <= Food.FOOD_WIDTH / 2) {
 						this.setHunger(this.getHunger() - 20);
-						System.out.println("Creature " + this.getId() + " ate food " + food.getId() + ". New hunger: " + this.getHunger());
 
 						if (this.getHunger() < 0) {
 							this.setHunger(0);
