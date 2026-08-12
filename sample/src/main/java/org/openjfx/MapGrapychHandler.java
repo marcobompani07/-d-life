@@ -8,6 +8,8 @@ public class MapGrapychHandler {
     private  double standardUnit;
     private  double canvasWidth;
     private  double canvasHeight;
+    private double  offsetX;
+    private double  offsetY;
 
 
     public MapGrapychHandler(GraphicsContext gc, double standardUnit , double canvasWidth, double canvasHeight) {
@@ -15,6 +17,8 @@ public class MapGrapychHandler {
         this.standardUnit = standardUnit;
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
+        offsetX=0;
+        offsetY=0;
     }
    
 
@@ -24,13 +28,13 @@ public class MapGrapychHandler {
             Creature creature=creatures[i];
             if(creature!=null){
                 gc.setFill(creature.getColor());
-                gc.fillRect(creature.getX()*standardUnit *App.ZOOM,creature.getY()*standardUnit*App.ZOOM,creature.getWidth()*standardUnit*App.ZOOM,creature.getHeight()*standardUnit*App.ZOOM);
+                gc.fillRect(creature.getX()*standardUnit *App.ZOOM+offsetX,creature.getY()*standardUnit*App.ZOOM+offsetY,creature.getWidth()*standardUnit*App.ZOOM,creature.getHeight()*standardUnit*App.ZOOM);
             }
         }
         for(int i=0;i<foodArray.length;i++){
             if(foodArray[i]!=null){
                 gc.setFill(Color.LIME);
-                gc.fillOval(foodArray[i].getX()*standardUnit*App.ZOOM,foodArray[i].getY()*standardUnit*App.ZOOM, 10*standardUnit*App.ZOOM, 10*standardUnit*App.ZOOM);
+                gc.fillOval(foodArray[i].getX()*standardUnit*App.ZOOM+offsetX,foodArray[i].getY()*standardUnit*App.ZOOM+offsetY, 10*standardUnit*App.ZOOM, 10*standardUnit*App.ZOOM);
                 
             }
         }
@@ -50,5 +54,12 @@ public class MapGrapychHandler {
 
     public void setstandardUnit(double standardUnit) {
         this.standardUnit = standardUnit;
+    }
+
+    public void addOffsetX(double offset){
+        offsetX+=offset;
+    }
+    public void addOffsetY(double offset){
+        offsetY+=offset;
     }
 }

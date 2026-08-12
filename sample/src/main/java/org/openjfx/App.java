@@ -21,7 +21,9 @@ public class App extends Application {
 	static final double WORLD_WIDTH = 1000;
 	static double WORLD_HEIGHT = 0;
     static double ZOOM=1;
-
+    private boolean startDrag=false;
+    private boolean hasDragged=false;
+    private double previusDragX=0,previusDragY=0;
     @Override
     public void start(Stage stage) throws InterruptedException {
         stage.setMaximized(true);
@@ -44,13 +46,36 @@ public class App extends Application {
         double canvasHeight=canvas.getHeight();
         double standardUnit=backgroundPane.maxWidthProperty().get()/WORLD_WIDTH;
         WORLD_HEIGHT=backgroundPane.maxHeightProperty().get()/standardUnit;
+        MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnit,canvasWidth,canvasHeight);
+        canvas.setOnMouseDragged(in->{
+            if(!startDrag){
+                startDrag=true;
+                hasDragged=true;
+                previusDragX=in.getX();
+                previusDragY=in.getY();
+            }else{
+                double newDragX=in.getX();
+                double newDragY=in.getY();
+                mapGrapychHandler.addOffsetX(newDragX-previusDragX);
+                mapGrapychHandler.addOffsetY(newDragY-previusDragY);
+                previusDragX=newDragX;
+                previusDragY=newDragY;
+            }
+        });
+        canvas.setOnMouseReleased(in->{
+            if(hasDragged){
+                startDrag=false;
+                hasDragged=false;
+            }
+        });
+        
         Spinner<Integer> zoomSpinner=new Spinner(10,500,100,10);
         zoomSpinner.setEditable(true);
         //zoomSpinner.setTranslateX(15*standardUnit);
         Button zoomButton = new Button("SetZoom");
         zoomButton.setOnAction(e -> {
-            ZOOM=((double)zoomSpinner.getValue())/100;
-            System.out.println("zoom:"+ZOOM);
+            int zoomValue=zoomSpinner.getValue();
+            ZOOM=((double)zoomValue)/100;
         });
         HBox topBar = new HBox(10*standardUnit, zoomSpinner,zoomButton);
         topBar.setStyle("-fx-padding: "+(10*standardUnit)+"px;-fx-background-color: #494848;");
@@ -78,7 +103,6 @@ public class App extends Application {
         FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,10);
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
         ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
-        MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnit,canvasWidth,canvasHeight);
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
@@ -108,5 +132,6 @@ public class App extends Application {
     public static void main(String[] args) {
         launch();
     }
+
 
 }
