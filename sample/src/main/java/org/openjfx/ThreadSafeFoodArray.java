@@ -25,6 +25,12 @@ public class ThreadSafeFoodArray {
        release(i);
     }
 
+	public synchronized void requestRemove(int i)throws InterruptedException{
+       request(i);
+       foodArray[i] = null;
+       release(i);
+    }
+
 
     public synchronized void release(int i){
         requestedFoods[i]=false;
