@@ -52,7 +52,7 @@ public class App extends Application {
 			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, (10/standardUnitY)*standardUnitX, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
 		}
 		
-        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(foodArray, backgroundGrid);
+        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(foodArray, backgroundGrid,10);
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
         ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
         MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnitX,standardUnitY,canvasWidth,canvasHeight);

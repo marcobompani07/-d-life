@@ -4,30 +4,32 @@ public class FoodGeneratorThread extends Thread{
     private  Food[] foodArray;
     private  BackgroundGridElement[][] backgroundGrid;
     private boolean stop;
-    public FoodGeneratorThread(Food[]foodArray,BackgroundGridElement[][]backgroundGrid){
+    private int foodGenerationCount;
+    public FoodGeneratorThread(Food[]foodArray,BackgroundGridElement[][]backgroundGrid, int foodGenerationCount){
         this.foodArray=foodArray;
         this.backgroundGrid=backgroundGrid;
+        this.foodGenerationCount=foodGenerationCount;
         stop=false;
     }
     @Override
     public void run(){
         while(!stop){
             long stantingTime=System.currentTimeMillis();
-            boolean found=false;
-            for(int i=0;i<foodArray.length&&!found;i++){
+            int generatedFood=0;
+            for(int i=0;i<foodArray.length&&generatedFood<foodGenerationCount;i++){
                 if(foodArray[i]==null){
-                    int x=((int)(Math.random()*991));
-                    int y=((int)(Math.random()*981));
-                    foodArray[i]=new Food(i, 1,x,y);
-                    //backgroundGrid[x][y].setFood(i);
-                    found=true;
+                    int x=((int)(Math.random()*100));
+                    int y=((int)(Math.random()*100));
+                    foodArray[i]=new Food(i, 1,x*10,y*10);
+                    backgroundGrid[x][y].setFood(i);
+                    generatedFood++;
                 }
             }
             long currentTime=System.currentTimeMillis();
             System.out.println(currentTime-stantingTime);
-            if ((currentTime-stantingTime)<=100){
+            if ((currentTime-stantingTime)<=1000){
                 try {
-                   Thread.sleep(100-(currentTime-stantingTime)); 
+                   Thread.sleep(1000-(currentTime-stantingTime)); 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
