@@ -70,6 +70,7 @@ public class Creature {
 						}
 
 						foodArray.release(foodIndex);
+						foodArray.requestRemove(foodIndex);
 						break;
 					}
 				}
