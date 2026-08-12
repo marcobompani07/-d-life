@@ -19,6 +19,7 @@ public class App extends Application {
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 	static final double WORLD_WIDTH = 1000;
+    private static final int FOODSPAWNOUNT=5;
 	static double WORLD_HEIGHT = 0;
     static double ZOOM=1;
     private boolean startDrag=false;
@@ -100,7 +101,7 @@ public class App extends Application {
 			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() + 1, threadSafeFoodArray);
 		}
 		
-        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,2);
+        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,App.FOODSPAWNOUNT);
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
         ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
