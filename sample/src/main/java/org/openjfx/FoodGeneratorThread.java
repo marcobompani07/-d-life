@@ -23,10 +23,10 @@ public class FoodGeneratorThread extends Thread{
                         foodArray.release(i);
                         int x=((int)(Math.random()*100));
                         int y=((int)(Math.random()*100));
-                        while (backgroundGrid[x][y].getFood()!=-1){
+                        /*while (backgroundGrid[x][y].getFood()!=-1){
                             x=((int)(Math.random()*100));
                             y=((int)(Math.random()*100));
-                        };
+                        };*/
                        
                         foodArray.requestAdd(i, new Food(i, 1,x*10,y*10));
                         backgroundGrid[x][y].setFood(i);
