@@ -47,17 +47,23 @@ public class App extends Application {
 		Creature[] creatures = new Creature[MAX_CREATURES];
         Food[] foodArray=new Food[MAX_CREATURES*10];
         BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)WORLD_WIDTH][(int)WORLD_HEIGHT];
+        for(int i=0;i<backgroundGrid.length;i++){
+            for(int i2=0;i2<backgroundGrid[i].length;i2++){
+                backgroundGrid[i][i2]=new BackgroundGridElement();
+            }
+        }
+        ThreadSafeFoodArray threadSafeFoodArray=new ThreadSafeFoodArray(foodArray);
 		
 		for(int i = 0; i < INITIAL_CREATURES; i++) {
 			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, (10/standardUnitY)*standardUnitX, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1);
 		}
 		
-        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(foodArray, backgroundGrid,10);
+        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,10);
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
         ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
         MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnitX,standardUnitY,canvasWidth,canvasHeight);
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
-        MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,foodArray);
+        MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
 		workers = new CreatureWorker[WORKER_COUNT];
 

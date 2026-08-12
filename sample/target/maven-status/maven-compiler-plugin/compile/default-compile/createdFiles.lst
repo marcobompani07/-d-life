@@ -11,6 +11,7 @@ org\openjfx\CreatureActionHandler.class
 org\openjfx\ThreadSafeCreaturesArray.class
 org\openjfx\ThreadSafeCreatureUpdateCounter.class
 org\openjfx\MapGrapychHandler.class
+org\openjfx\ThreadSafeFoodArray.class
 org\openjfx\BackgroundGridElement.class
 org\openjfx\App.class
 org\openjfx\SystemInfo.class
