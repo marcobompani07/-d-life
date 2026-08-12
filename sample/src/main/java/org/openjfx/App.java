@@ -97,7 +97,7 @@ public class App extends Application {
         ThreadSafeFoodArray threadSafeFoodArray=new ThreadSafeFoodArray(foodArray);
 		
 		for(int i = 0; i < INITIAL_CREATURES; i++) {
-			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() * 10 + 1, threadSafeFoodArray);
+			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() + 1, threadSafeFoodArray);
 		}
 		
         FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,10);
