@@ -30,52 +30,58 @@ public class Creature {
 	}
 
 	public Creature() {
-		this(0, 0, 0, 10, 10,Color.RED, 2.0, new ThreadSafeFoodArray());
+		this(0, 0, 0, 10, 10,Color.RED, 2.0, null);
 	}
 
-	public void update(){
+	public void update() throws InterruptedException{
 
-		if(hunger < 100){
-			double weightedSpeed = this.speed;
+		if(this.getHunger() < 100){
+			double weightedSpeed = this.getSpeed();
 
-			if(hunger >= 60){
-				double hungerEffect = (hunger - 60) / 40;
-				weightedSpeed = this.speed * (1 - hungerEffect);
+			if(this.getHunger() >= 60){
+				double hungerEffect = (this.getHunger() - 60) / 40;
+				weightedSpeed = this.getSpeed() * (1 - hungerEffect);
 			}
 
-			double newX = this.x + Math.random() * weightedSpeed - weightedSpeed / 2;
-			double newY = this.y + Math.random() * weightedSpeed - weightedSpeed / 2;
+			double newX = this.getX() + Math.random() * weightedSpeed - weightedSpeed / 2;
+			double newY = this.getY() + Math.random() * weightedSpeed - weightedSpeed / 2;
 
-			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.width, newX));
-			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.height, newY));
+			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
+			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.getHeight(), newY));
 
-			while (foodArray.getLength() > 0) {
-				Food food = foodArray.request(0);
+			int foodIndex = 0;
+			while (foodIndex < foodArray.getLength()) {
+				Food food = foodArray.request(foodIndex);
 
 				if (food != null) {
 					double foodX = food.getX();
 					double foodY = food.getY();
 
-					double distanceToFood = Math.sqrt(Math.pow(foodX - newX, 2) + Math.pow(foodY - newY, 2));
+					double creatureClosestX = Math.max(newX, Math.min(foodX, newX + this.getWidth()));
+					double creatureClosestY = Math.max(newY, Math.min(foodY, newY + this.getHeight()));
 
-					if (distanceToFood < this.width / 2 + food.getWidth() / 2) {
-						hunger -= 20;
+					double distanceToFood = Math.sqrt(Math.pow(foodX - creatureClosestX, 2) + Math.pow(foodY - creatureClosestY, 2));
 
-						if (hunger < 0) {
-							hunger = 0;
+					if (distanceToFood <= Food.FOOD_WIDTH / 2) {
+						this.setHunger(this.getHunger() - 20);
+						System.out.println("Creature " + this.getId() + " ate food " + food.getId() + ". New hunger: " + this.getHunger());
+
+						if (this.getHunger() < 0) {
+							this.setHunger(0);
 						}
 
-						foodArray.release(0);
+						foodArray.release(foodIndex);
 						break;
 					}
 				}
-				
-				foodArray.release(0);
+
+				foodArray.release(foodIndex);
+				foodIndex++;
 			}
 			
 			move(newX, newY);
 
-			hunger +=  this.speed / 100;
+			this.setHunger(this.getHunger() + this.getSpeed() / 100);
 		}
 	}
 
