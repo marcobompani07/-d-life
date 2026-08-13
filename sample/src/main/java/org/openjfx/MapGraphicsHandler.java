@@ -57,9 +57,26 @@ public class MapGraphicsHandler {
     }
 
     public void addOffsetX(double offset){
-        offsetX+=offset;
+        if( offsetX+offset>0){
+            offsetX=0;
+        }else if((-(offsetX+offset)>(App.WORLD_WIDTH*standardUnit+canvasWidth))){ 
+            System.out.println("resetted:"+offsetX+offset);
+            offsetX=-App.WORLD_HEIGHT*standardUnit-canvasWidth;
+        }else{
+            
+            offsetX+=offset;
+        }
+        System.out.println("x:"+offsetX);
     }
     public void addOffsetY(double offset){
-        offsetY+=offset;
+        if(offsetY+offset>0){
+            offsetY=0;
+        }else if((-(offsetY+offset))>(App.WORLD_HEIGHT*standardUnit+canvasHeight)){ 
+            System.out.println("resetted:"+offsetY+offset);
+            offsetY=-App.WORLD_HEIGHT*standardUnit-canvasHeight;
+        }else{
+            offsetY+=offset;
+        }
+        System.out.println("y:"+offsetY);
     }
 }

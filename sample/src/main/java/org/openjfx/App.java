@@ -14,12 +14,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private static final int MAX_CREATURES = 5000;
-	private static final int INITIAL_CREATURES = 5000;
+    private static final int MAX_CREATURES = 10000;
+	private static final int INITIAL_CREATURES = 10000;
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
-	static final double WORLD_WIDTH = 1000;
-    private static final int FOODSPAWNOUNT=5;
+    static final double WORLD_MULTIPLIYER=10;
+	static final double WORLD_WIDTH = 1000*WORLD_MULTIPLIYER;
+    static final int UNIT_DIVISION=1000;
+    private static final int FOODSPAWNOUNT=0;
 	static double WORLD_HEIGHT = 0;
     static double ZOOM=1;
     private boolean startDrag=false;
@@ -45,8 +47,8 @@ public class App extends Application {
         backgroundPane.getChildren().add(canvas);
         double canvasWidth=canvas.getWidth();
         double canvasHeight=canvas.getHeight();
-        double standardUnit=backgroundPane.maxWidthProperty().get()/WORLD_WIDTH;
-        WORLD_HEIGHT=backgroundPane.maxHeightProperty().get()/standardUnit;
+        double standardUnit=backgroundPane.maxWidthProperty().get()/UNIT_DIVISION;
+        WORLD_HEIGHT=backgroundPane.maxHeightProperty().get()/standardUnit*WORLD_MULTIPLIYER;
         MapGraphicsHandler mapGrapychHandler=new MapGraphicsHandler(gc,standardUnit,canvasWidth,canvasHeight);
         canvas.setOnMouseDragged(in->{
             if(!startDrag){
@@ -72,10 +74,11 @@ public class App extends Application {
         
         Spinner<Integer> zoomSpinner=new Spinner(10,500,100,10);
         zoomSpinner.setEditable(true);
-        //zoomSpinner.setTranslateX(15*standardUnit);
         Button zoomButton = new Button("SetZoom");
         zoomButton.setOnAction(e -> {
             int zoomValue=zoomSpinner.getValue();
+            mapGrapychHandler.addOffsetX((canvasWidth-(canvasWidth/((ZOOM*100)/((double)zoomValue))))/2*ZOOM);
+            mapGrapychHandler.addOffsetY((canvasHeight-(canvasHeight/((ZOOM*100)/((double)zoomValue))))/2*ZOOM);
             ZOOM=((double)zoomValue)/100;
         });
         HBox topBar = new HBox(10*standardUnit, zoomSpinner,zoomButton);
@@ -109,7 +112,7 @@ public class App extends Application {
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
 		workers = new CreatureWorker[WORKER_COUNT];
-        System.out.println(WORKER_COUNT);
+
 		for (int i = 0; i < WORKER_COUNT; i++) {
 			CreatureActionHandler actionHandler = new CreatureActionHandler(creaturesArray, updateCounter);
 			workers[i] = new CreatureWorker(actionHandler);

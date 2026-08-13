@@ -6,11 +6,11 @@ org\openjfx\CreatureWorker.class
 org\openjfx\ThreadSafeUpdateMapQueueCounter.class
 org\openjfx\MovmentHandlingThread.class
 org\openjfx\UpdateGuiRunnableGenerator.class
+org\openjfx\MapGraphicsHandler.class
 module-info.class
 org\openjfx\CreatureActionHandler.class
 org\openjfx\ThreadSafeCreaturesArray.class
 org\openjfx\ThreadSafeCreatureUpdateCounter.class
-org\openjfx\MapGrapychHandler.class
 org\openjfx\ThreadSafeFoodArray.class
 org\openjfx\BackgroundGridElement.class
 org\openjfx\App.class
