@@ -3,7 +3,7 @@ package org.openjfx;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class MapGrapychHandler {
+public class MapGraphicsHandler {
     private GraphicsContext gc;
     private  double standardUnit;
     private  double canvasWidth;
@@ -12,7 +12,7 @@ public class MapGrapychHandler {
     private double  offsetY;
 
 
-    public MapGrapychHandler(GraphicsContext gc, double standardUnit , double canvasWidth, double canvasHeight) {
+    public MapGraphicsHandler(GraphicsContext gc, double standardUnit , double canvasWidth, double canvasHeight) {
         this.gc = gc;
         this.standardUnit = standardUnit;
         this.canvasWidth = canvasWidth;

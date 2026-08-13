@@ -43,7 +43,7 @@ public class Creature {
 				weightedSpeed = this.getSpeed() * (1 - hungerEffect);
 			}
 
-			Object [] closestFoodData = findClosesFood();
+			Object [] closestFoodData = findClosestFood();
 			Food closestFood = (Food) closestFoodData[0];
 			double closestDistance = (double) closestFoodData[1];
 
@@ -71,7 +71,7 @@ public class Creature {
 		}
 	}
 
-	private Object[] findClosesFood() throws InterruptedException{
+	private Object[] findClosestFood() throws InterruptedException{
 		Food closestFood = null;
 		double closestDistance = Double.MAX_VALUE;
 
