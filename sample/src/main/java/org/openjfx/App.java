@@ -15,18 +15,22 @@ import javafx.stage.Stage;
 
 public class App extends Application {
     private static final int MAX_CREATURES = 10000;
-	private static final int INITIAL_CREATURES = 10000;
+	private static final int INITIAL_CREATURES = 100;
+    private static final int FOODSPAWNOUNT = 5;
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
-    static final double WORLD_MULTIPLIYER=10;
+
+    static final double WORLD_MULTIPLIYER = 3;
 	static final double WORLD_WIDTH = 1000*WORLD_MULTIPLIYER;
-    static final int UNIT_DIVISION=1000;
-    private static final int FOODSPAWNOUNT=0;
+    static final int UNIT_DIVISION = 1000;
 	static double WORLD_HEIGHT = 0;
-    static double ZOOM=1;
-    private boolean startDrag=false;
-    private boolean hasDragged=false;
-    private double previusDragX=0,previusDragY=0;
+
+
+    static double ZOOM = 1;
+    private boolean startDrag = false;
+    private boolean hasDragged = false;
+    private double previusDragX = 0, previusDragY = 0;
+
     @Override
     public void start(Stage stage) throws InterruptedException {
         stage.setMaximized(true);
@@ -86,23 +90,20 @@ public class App extends Application {
         topBar.setSpacing(15*standardUnit);
         root.setTop(topBar);
 
-        
-
-
-
 		Creature[] creatures = new Creature[MAX_CREATURES];
-        //Food[] foodArray=new Food[MAX_CREATURES*10];
-        Food[] foodArray=new Food[10];
-        BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)WORLD_WIDTH][(int)WORLD_HEIGHT];
+        Food[] foodArray=new Food[MAX_CREATURES / 10];
+        BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)WORLD_WIDTH / 10][(int)WORLD_HEIGHT / 10];
+
         for(int i=0;i<backgroundGrid.length;i++){
             for(int i2=0;i2<backgroundGrid[i].length;i2++){
                 backgroundGrid[i][i2]=new BackgroundGridElement();
             }
         }
+
         ThreadSafeFoodArray threadSafeFoodArray=new ThreadSafeFoodArray(foodArray);
 		
 		for(int i = 0; i < INITIAL_CREATURES; i++) {
-			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() + 1, threadSafeFoodArray);
+			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() + 1, threadSafeFoodArray, backgroundGrid);
 		}
 		
         FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,App.FOODSPAWNOUNT);
@@ -111,6 +112,7 @@ public class App extends Application {
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
+		
 		workers = new CreatureWorker[WORKER_COUNT];
 
 		for (int i = 0; i < WORKER_COUNT; i++) {
@@ -118,6 +120,7 @@ public class App extends Application {
 			workers[i] = new CreatureWorker(actionHandler);
 			workers[i].start();
 		}
+
         foodGeneratorThread.start();
 		movmentHandlingThread.start();
         

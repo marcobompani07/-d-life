@@ -60,8 +60,8 @@ public class Creature {
 				newX = this.getX() + directionX * weightedSpeed;
 				newY = this.getY() + directionY * weightedSpeed;	
 			}else{
-				newX = this.getX() + Math.random() * weightedSpeed - weightedSpeed / 2;
-				newY = this.getY() + Math.random() * weightedSpeed - weightedSpeed / 2;
+				newX = this.getX() + Math.random() * (weightedSpeed * 2) - (weightedSpeed * 2) / 2;
+				newY = this.getY() + Math.random() * (weightedSpeed * 2) - (weightedSpeed * 2) / 2;
 			}
 
 			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
