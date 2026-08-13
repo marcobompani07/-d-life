@@ -72,7 +72,6 @@ public class MapGraphicsHandler {
         if(offsetY+offset>0){
             offsetY=0;
         }else if((-(offsetY+offset))>((App.WORLD_HEIGHT*standardUnit*App.ZOOM-canvasHeight))){ 
-            System.out.println("resetted:"+offsetY+offset);
             offsetY=-((App.WORLD_HEIGHT*standardUnit*App.ZOOM-canvasHeight));
         }else{
             offsetY+=offset;
