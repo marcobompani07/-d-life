@@ -14,12 +14,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private static final int MAX_CREATURES = 100;
-	private static final int INITIAL_CREATURES = 100;
+    private static final int MAX_CREATURES = 5000;
+	private static final int INITIAL_CREATURES = 5000;
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 	static final double WORLD_WIDTH = 1000;
-    private static final int FOODSPAWNOUNT=5;
+    private static final int FOODSPAWNOUNT=0;
 	static double WORLD_HEIGHT = 0;
     static double ZOOM=1;
     private boolean startDrag=false;
@@ -76,6 +76,8 @@ public class App extends Application {
         Button zoomButton = new Button("SetZoom");
         zoomButton.setOnAction(e -> {
             int zoomValue=zoomSpinner.getValue();
+            mapGrapychHandler.addOffsetX((canvasWidth-(canvasWidth/((ZOOM*100)/((double)zoomValue))))/2*ZOOM);
+            mapGrapychHandler.addOffsetY((canvasHeight-(canvasHeight/((ZOOM*100)/((double)zoomValue))))/2*ZOOM);
             ZOOM=((double)zoomValue)/100;
         });
         HBox topBar = new HBox(10*standardUnit, zoomSpinner,zoomButton);
@@ -109,7 +111,7 @@ public class App extends Application {
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
 		workers = new CreatureWorker[WORKER_COUNT];
-        System.out.println(WORKER_COUNT);
+
 		for (int i = 0; i < WORKER_COUNT; i++) {
 			CreatureActionHandler actionHandler = new CreatureActionHandler(creaturesArray, updateCounter);
 			workers[i] = new CreatureWorker(actionHandler);
