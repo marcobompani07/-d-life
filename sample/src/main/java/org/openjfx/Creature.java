@@ -77,7 +77,6 @@ public class Creature {
 
 		for (int i = 0; i < foodArray.getLength(); i++){
 			Food food = foodArray.request(i);
-
 			if (food != null) {
 				double distance = Math.sqrt(Math.pow(food.getX() - this.getX(), 2) + Math.pow(food.getY() - this.getY(), 2));
 
@@ -97,7 +96,6 @@ public class Creature {
 		int foodIndex = 0;
 		while (foodIndex < foodArray.getLength()) {
 			Food food = foodArray.request(foodIndex);
-
 			if (food != null) {
 				double foodX = food.getX();
 				double foodY = food.getY();

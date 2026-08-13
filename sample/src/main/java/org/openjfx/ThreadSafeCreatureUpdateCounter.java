@@ -17,8 +17,7 @@ public class ThreadSafeCreatureUpdateCounter {
 
 	public synchronized int getNext() throws InterruptedException {
 		int current = counter;
-
-		while (creatureArray.getCreatures()[current] == null) {
+		while (creatureArray.getCreatures()[current] == null) {//questo ralenta il codice potenzialmente 
 			current++;
 
 			if (current >= max) {
@@ -29,10 +28,16 @@ public class ThreadSafeCreatureUpdateCounter {
 		counter = current + 1;
 
 		if(counter >= max){
+			System.out.println("counter is maxed");
 			long currentTime=System.currentTimeMillis();
 			if ((currentTime-startTime)<=10){
+				System.out.println("sleeping");
 				Thread.sleep(10-(currentTime-startTime));
+			}else{
+				System.out.println("not sleeping");
+				System.err.println("cicle time:"+(currentTime-startTime));
 			}
+			
 			startTime=System.currentTimeMillis();
 			counter=0;
 		}
