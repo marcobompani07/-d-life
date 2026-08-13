@@ -17,13 +17,6 @@ public class ThreadSafeCreatureUpdateCounter {
 
 	public synchronized int getNext() throws InterruptedException {
 		int current = counter;
-		while (creatureArray.getCreatures()[current] == null) {//questo ralenta il codice potenzialmente 
-			current++;
-
-			if (current >= max) {
-				current = 0;
-			}
-		}
 
 		counter = current + 1;
 

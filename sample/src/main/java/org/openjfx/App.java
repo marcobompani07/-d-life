@@ -14,8 +14,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private static final int MAX_CREATURES = 5000;
-	private static final int INITIAL_CREATURES = 5000;
+    private static final int MAX_CREATURES = 100;
+	private static final int INITIAL_CREATURES = 100;
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 	static final double WORLD_WIDTH = 1000;
