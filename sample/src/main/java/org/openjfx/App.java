@@ -47,7 +47,7 @@ public class App extends Application {
         double canvasHeight=canvas.getHeight();
         double standardUnit=backgroundPane.maxWidthProperty().get()/WORLD_WIDTH;
         WORLD_HEIGHT=backgroundPane.maxHeightProperty().get()/standardUnit;
-        MapGrapychHandler mapGrapychHandler=new MapGrapychHandler(gc,standardUnit,canvasWidth,canvasHeight);
+        MapGraphicsHandler mapGrapychHandler=new MapGraphicsHandler(gc,standardUnit,canvasWidth,canvasHeight);
         canvas.setOnMouseDragged(in->{
             if(!startDrag){
                 startDrag=true;

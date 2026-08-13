@@ -1,9 +1,9 @@
 package org.openjfx;
 
 public class UpdateGuiRunnableGenerator  {
-    private MapGrapychHandler mapGrapychHandler;
+    private MapGraphicsHandler mapGrapychHandler;
     private ThreadSafeUpdateMapQueueCounter counter;
-    public UpdateGuiRunnableGenerator ( MapGrapychHandler mapGrapychHandler, ThreadSafeUpdateMapQueueCounter counter){
+    public UpdateGuiRunnableGenerator ( MapGraphicsHandler mapGrapychHandler, ThreadSafeUpdateMapQueueCounter counter){
         this.mapGrapychHandler=mapGrapychHandler;
         this.counter=counter;
     }
