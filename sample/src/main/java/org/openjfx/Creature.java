@@ -67,7 +67,9 @@ public class Creature {
 			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
 			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.getHeight(), newY));
 
-			eatFood(newX, newY);
+			if(closestFood != null){
+				eatFood(closestFood, closestFood.getId(), newX, newY);
+			}
 			
 			move(newX, newY);
 
@@ -112,37 +114,32 @@ public class Creature {
 		return new Object[]{closestFood, closestDistance};
 	}
 
-	private void eatFood(double newX, double newY) throws InterruptedException{
-		int foodIndex = 0;
-		while (foodIndex < foodArray.getLength()) {
-			Food food = foodArray.request(foodIndex);
-			if (food != null) {
-				double foodX = food.getX();
-				double foodY = food.getY();
+	private void eatFood(Food food, int foodId, double newX, double newY) throws InterruptedException{
+		if(food == null){
+			return;
+		}
 
-				double creatureClosestX = Math.max(newX, Math.min(foodX, newX + this.getWidth()));
-				double creatureClosestY = Math.max(newY, Math.min(foodY, newY + this.getHeight()));
+		double foodX = food.getX();
+		double foodY = food.getY();
 
-				double distanceToFood = Math.sqrt(Math.pow(foodX - creatureClosestX, 2) + Math.pow(foodY - creatureClosestY, 2));
+		double creatureClosestX = Math.max(newX, Math.min(foodX, newX + this.getWidth()));
+		double creatureClosestY = Math.max(newY, Math.min(foodY, newY + this.getHeight()));
 
-				if (distanceToFood <= Food.FOOD_WIDTH / 2) {
-					this.setHunger(this.getHunger() - 20);
+		double distanceToFood = Math.sqrt(Math.pow(foodX - creatureClosestX, 2) + Math.pow(foodY - creatureClosestY, 2));
+		
+		if (distanceToFood <= Food.FOOD_WIDTH / 2) {
+			this.setHunger(this.getHunger() - 20);
 
-					if (this.getHunger() < 0) {
-						this.setHunger(0);
-					}
-
-					int foodGridX = (int) (foodX / 10);
-					int foodGridY = (int) (foodY / 10);
-					backgroundGrid[foodGridX][foodGridY].setFood(-1);
-					foodArray.release(foodIndex);
-					foodArray.requestRemove(foodIndex);
-					break;
-				}
+			if (this.getHunger() < 0) {
+				this.setHunger(0);
 			}
 
-			foodArray.release(foodIndex);
-			foodIndex++;
+			int foodGridX = (int) (foodX / 10);
+			int foodGridY = (int) (foodY / 10);
+
+			backgroundGrid[foodGridX][foodGridY].setFood(-1);
+
+			foodArray.requestRemove(foodId);
 		}
 	}
 
