@@ -21,7 +21,6 @@ public class ThreadSafeCreatureUpdateCounter {
 		counter = current + 1;
 
 		if(counter >= max){
-			System.out.println("counter is maxed");
 			long currentTime=System.currentTimeMillis();
 			if ((currentTime-startTime)<=10){
 				System.out.println("sleeping");
