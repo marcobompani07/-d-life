@@ -59,9 +59,9 @@ public class MapGraphicsHandler {
     public void addOffsetX(double offset){
         if( offsetX+offset>0){
             offsetX=0;
-        }else if((-(offsetX+offset)>(App.WORLD_WIDTH*standardUnit+canvasWidth))){ 
+        }else if((-(offsetX+offset)>((App.WORLD_WIDTH*standardUnit*App.ZOOM-canvasWidth)))){ 
             System.out.println("resetted:"+offsetX+offset);
-            offsetX=-App.WORLD_HEIGHT*standardUnit-canvasWidth;
+            offsetX=-((App.WORLD_WIDTH*standardUnit*App.ZOOM-canvasWidth));
         }else{
             
             offsetX+=offset;
@@ -71,9 +71,9 @@ public class MapGraphicsHandler {
     public void addOffsetY(double offset){
         if(offsetY+offset>0){
             offsetY=0;
-        }else if((-(offsetY+offset))>(App.WORLD_HEIGHT*standardUnit+canvasHeight)){ 
+        }else if((-(offsetY+offset))>((App.WORLD_HEIGHT*standardUnit*App.ZOOM-canvasHeight))){ 
             System.out.println("resetted:"+offsetY+offset);
-            offsetY=-App.WORLD_HEIGHT*standardUnit-canvasHeight;
+            offsetY=-((App.WORLD_HEIGHT*standardUnit*App.ZOOM-canvasHeight));
         }else{
             offsetY+=offset;
         }
