@@ -11,9 +11,11 @@ public class Creature {
 	private Color color;
 	private double speed;
 	private double hunger;
+	private int view;
 	private ThreadSafeFoodArray foodArray;
+	private BackgroundGridElement[][] backgroundGrid;
 
-	public Creature(int id, double x, double y, double width, double height,Color color, double speed, ThreadSafeFoodArray foodArray) {
+	public Creature(int id, double x, double y, double width, double height,Color color, double speed, ThreadSafeFoodArray foodArray, BackgroundGridElement[][] backgroundGrid) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -22,15 +24,17 @@ public class Creature {
 		this.speed = speed;
 		this.color= color;
 		this.hunger = 0;
+		this.view = 5;
 		this.foodArray = foodArray;
+		this.backgroundGrid = backgroundGrid;
 	}
 
 	public Creature (Creature c) {
-		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor(), c.getSpeed(), c.getFoodArray());
+		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor(), c.getSpeed(), c.getFoodArray(), c.getBackgroundGrid());
 	}
 
 	public Creature() {
-		this(0, 0, 0, 10, 10,Color.RED, 2.0, null);
+		this(0, 0, 0, 10, 10,Color.RED, 2.0, null, null);
 	}
 
 	public void update() throws InterruptedException{
@@ -75,18 +79,34 @@ public class Creature {
 		Food closestFood = null;
 		double closestDistance = Double.MAX_VALUE;
 
-		for (int i = 0; i < foodArray.getLength(); i++){
-			Food food = foodArray.request(i);
-			if (food != null) {
-				double distance = Math.sqrt(Math.pow(food.getX() - this.getX(), 2) + Math.pow(food.getY() - this.getY(), 2));
+		int gridPositionX = (int) (this.getX() / 10);
+		int gridPositionY = (int) (this.getY() / 10);
 
-				if (distance < closestDistance) {
-					closestDistance = distance;
-					closestFood = food;
+		int startX = gridPositionX - this.getView();
+		int endX = gridPositionX + this.getView();
+		int startY = gridPositionY - this.getView();
+		int endY = gridPositionY + this.getView();
+
+		for(int x = startX; x <= endX; x++){
+			for(int y = startY; y <= endY; y++){
+				if(x >= 0 && x < backgroundGrid.length && y >= 0 && y < backgroundGrid[0].length){
+					int foodId = backgroundGrid[x][y].getFood();
+
+					if(foodId != -1){
+						Food food = foodArray.request(foodId);
+
+						if(food != null){
+							double distance = Math.sqrt(Math.pow(food.getX() - this.getX(), 2) + Math.pow(food.getY() - this.getY(), 2));
+							if(distance < closestDistance){
+								closestDistance = distance;
+								closestFood = food;
+							}
+						}
+
+						foodArray.release(foodId);
+					}
 				}
 			}
-
-			foodArray.release(i);
 		}
 
 		return new Object[]{closestFood, closestDistance};
@@ -112,6 +132,9 @@ public class Creature {
 						this.setHunger(0);
 					}
 
+					int foodGridX = (int) (foodX / 10);
+					int foodGridY = (int) (foodY / 10);
+					backgroundGrid[foodGridX][foodGridY].setFood(-1);
 					foodArray.release(foodIndex);
 					foodArray.requestRemove(foodIndex);
 					break;
@@ -188,8 +211,16 @@ public class Creature {
 		this.hunger = hunger;
 	}
 
+	public synchronized int getView() {
+		return view;
+	}
+
 	public synchronized ThreadSafeFoodArray getFoodArray() {
 		return foodArray;
+	}
+
+	public synchronized BackgroundGridElement[][] getBackgroundGrid() {
+		return backgroundGrid;
 	}
 
 }
