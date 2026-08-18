@@ -3,6 +3,7 @@ c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\App.ja
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\BackgroundGridElement.java
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\Creature.java
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\CreatureActionHandler.java
+c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\CreatureInfoDisplayThread.java
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\CreatureWorker.java
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\Food.java
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\FoodGeneratorThread.java
@@ -13,4 +14,5 @@ c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\Thread
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\ThreadSafeCreatureUpdateCounter.java
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\ThreadSafeFoodArray.java
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\ThreadSafeUpdateMapQueueCounter.java
+c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\UpdateCreatureDisplayRunnableGenerator.java
 c:\Users\marco\Documents\{d}life\-d-life\sample\src\main\java\org\openjfx\UpdateGuiRunnableGenerator.java
