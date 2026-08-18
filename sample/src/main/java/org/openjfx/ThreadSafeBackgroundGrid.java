@@ -17,16 +17,16 @@ public class ThreadSafeBackgroundGrid {
 
 	public synchronized boolean moveCreature(double oldX, double oldY, double newX, double newY, double width, double height, int creatureId){
 		int oldStartX = (int) (oldX / 10);
-        int oldEndX = (int) ((oldX + width) / 10);
+        int oldEndX = getEndGrid(oldX, width);
 
         int oldStartY = (int) (oldY / 10);
-        int oldEndY = (int) ((oldY + height) / 10);
+        int oldEndY = getEndGrid(oldY, height);
 
         int newStartX = (int) (newX / 10);
-        int newEndX = (int) ((newX + width) / 10);
+        int newEndX = getEndGrid(newX, width);
 
         int newStartY = (int) (newY / 10);
-        int newEndY = (int) ((newY + height) / 10);
+        int newEndY = getEndGrid(newY, height);
 
 		for (int gridX = newStartX; gridX <= newEndX; gridX++) {
             for (int gridY = newStartY; gridY <= newEndY; gridY++) {
@@ -44,8 +44,8 @@ public class ThreadSafeBackgroundGrid {
             }
         }
 
-		for (int gridX = oldStartX; gridX <= oldEndX; gridX++) {
-            for (int gridY = oldStartY; gridY <= oldEndY; gridY++) {
+		for (int gridX = newStartX; gridX <= newEndX; gridX++) {
+            for (int gridY = newStartY; gridY <= newEndY; gridY++) {
 
                 grid[gridX][gridY].setCreature(creatureId);
             }
@@ -56,10 +56,10 @@ public class ThreadSafeBackgroundGrid {
 
 	public synchronized boolean addCreature(double x, double y, double width, double height, int creatureId){
 		int startX = (int) (x / 10);
-        int endX = (int) ((x + width) / 10);
+        int endX = getEndGrid(x, width);
 
         int startY = (int) (y / 10);
-        int endY = (int) ((y + height) / 10);
+        int endY = getEndGrid(y, height);
 
 		for (int gridX = startX; gridX <= endX; gridX++) {
             for (int gridY = startY; gridY <= endY; gridY++) {
@@ -82,7 +82,7 @@ public class ThreadSafeBackgroundGrid {
 
 	public synchronized void removeCreature(double x, double y, double width, double height, int creatureId){
 		int startX = (int) (x / 10);
-        int endX = (int) ((x + width) / 10);
+        int endX = getEndGrid(x, width);
 
         int startY = (int) (y / 10);
         int endY = (int) ((y + height) / 10);
@@ -95,5 +95,9 @@ public class ThreadSafeBackgroundGrid {
                 }
             }
         }
+	}
+
+	private int getEndGrid(double position, double size) {
+		return (int) Math.ceil((position + size) / 10) - 1;
 	}
 }

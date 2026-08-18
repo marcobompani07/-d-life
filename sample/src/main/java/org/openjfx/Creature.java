@@ -11,11 +11,14 @@ public class Creature {
 	private Color color;
 	private double speed;
 	private double hunger;
+	private double hp;
+	private double baseAttack;
 	private int view;
 	private ThreadSafeFoodArray foodArray;
 	private BackgroundGridElement[][] backgroundGrid;
+	private ThreadSafeBackgroundGrid threadSafeBackgroundGrid;
 
-	public Creature(int id, double x, double y, double width, double height,Color color, double speed, ThreadSafeFoodArray foodArray, BackgroundGridElement[][] backgroundGrid) {
+	public Creature(int id, double x, double y, double width, double height, double hp, double baseAttack, Color color, double speed, ThreadSafeFoodArray foodArray, BackgroundGridElement[][] backgroundGrid, ThreadSafeBackgroundGrid threadSafeBackgroundGrid) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -24,17 +27,20 @@ public class Creature {
 		this.speed = speed;
 		this.color= color;
 		this.hunger = 0;
+		this.hp = hp;
+		this.baseAttack = baseAttack;
 		this.view = 5;
 		this.foodArray = foodArray;
 		this.backgroundGrid = backgroundGrid;
+		this.threadSafeBackgroundGrid = threadSafeBackgroundGrid;
 	}
 
 	public Creature (Creature c) {
-		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor(), c.getSpeed(), c.getFoodArray(), c.getBackgroundGrid());
+		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), c.getHp(), c.getBaseAttack(), c.getColor(), c.getSpeed(), c.getFoodArray(), c.getBackgroundGrid(), c.getThreadSafeBackgroundGrid());
 	}
 
 	public Creature() {
-		this(0, 0, 0, 10, 10,Color.RED, 2.0, null, null);
+		this(0, 0, 0, 10, 10, 100, 5,Color.RED, 2.0, null, null, null);
 	}
 
 	public void update() throws InterruptedException{
@@ -70,10 +76,10 @@ public class Creature {
 			if(closestFood != null){
 				eatFood(closestFood, closestFood.getId(), newX, newY);
 			}
-			
-			move(newX, newY);
 
-			this.setHunger(this.getHunger() + this.getSpeed() / 100);
+			if(move(newX, newY)){
+				this.setHunger(this.getHunger() + this.getSpeed() / 100);
+			}
 		}
 	}
 
@@ -143,9 +149,15 @@ public class Creature {
 		}
 	}
 
-	public synchronized void move(double newX, double newY) {
-		this.x = newX;
-		this.y = newY;
+	public boolean move(double newX, double newY) {
+		boolean moved = threadSafeBackgroundGrid.moveCreature(this.getX(), this.getY(), newX, newY, this.getWidth(), this.getHeight(), this.getId());
+
+		if(moved){
+			this.x = newX;
+			this.y = newY;
+		}
+
+		return moved;
 	}
 
 	public synchronized  int getId() {
@@ -212,6 +224,22 @@ public class Creature {
 		return view;
 	}
 
+	public synchronized double getHp(){
+		return hp;
+	}
+
+	public synchronized void setHp(double hp){
+		this.hp = hp;
+	}
+
+	public synchronized double getBaseAttack(){
+		return baseAttack;
+	}
+
+	public synchronized void setBaseAttack(double baseAttack){
+		this.baseAttack = baseAttack;
+	}
+
 	public synchronized ThreadSafeFoodArray getFoodArray() {
 		return foodArray;
 	}
@@ -220,4 +248,7 @@ public class Creature {
 		return backgroundGrid;
 	}
 
+	public synchronized ThreadSafeBackgroundGrid getThreadSafeBackgroundGrid() {
+		return threadSafeBackgroundGrid;
+	}
 }
