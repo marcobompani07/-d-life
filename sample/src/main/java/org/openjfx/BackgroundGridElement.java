@@ -9,19 +9,19 @@ public class BackgroundGridElement {
 		creatureId = -1;
     }
 
-    public synchronized int getFood(){
+    public int getFood(){
         return foodId;
     }
 	
-    public synchronized void setFood(int foodId){
+    public void setFood(int foodId){
         this.foodId=foodId;
     }
 
-	public synchronized int getCreature(){
+	public int getCreature(){
 		return creatureId;
 	}
 
-	public synchronized void setCreature(int creatureId){
+	public void setCreature(int creatureId){
 		this.creatureId = creatureId;
 	}
 }
