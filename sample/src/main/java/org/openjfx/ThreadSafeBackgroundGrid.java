@@ -11,22 +11,30 @@ public class ThreadSafeBackgroundGrid {
 		return grid[x][y].getCreature();
 	}
 
+	private boolean isInsideGrid(int x, int y){
+		return x >= 0 && x < grid.length && y >= 0 && y < grid[0].length;
+	}
+
 	public synchronized boolean isFree(int x, int y, int creatureId){
+		if(!isInsideGrid(x, y)){
+			return false;
+		}
+
 		return grid[x][y].getCreature() == -1 || grid[x][y].getCreature() == creatureId;
 	}
 
 	public synchronized boolean moveCreature(double oldX, double oldY, double newX, double newY, double width, double height, int creatureId){
-		int oldStartX = (int) (oldX / 10);
-        int oldEndX = getEndGrid(oldX, width);
+		int oldStartX = (int) Math.max(0, Math.min((oldX / 10), grid.length - 1));
+		int oldEndX = Math.max(0, Math.min(getEndGrid(oldX, width), grid.length - 1));
 
-        int oldStartY = (int) (oldY / 10);
-        int oldEndY = getEndGrid(oldY, height);
+		int oldStartY = (int) Math.max(0, Math.min((oldY / 10), grid[0].length - 1));
+		int oldEndY = Math.max(0, Math.min(getEndGrid(oldY, height), grid[0].length - 1));
 
-        int newStartX = (int) (newX / 10);
-        int newEndX = getEndGrid(newX, width);
+		int newStartX = (int) Math.max(0, Math.min((newX / 10), grid.length - 1));
+		int newEndX = Math.max(0, Math.min(getEndGrid(newX, width), grid.length - 1));
 
-        int newStartY = (int) (newY / 10);
-        int newEndY = getEndGrid(newY, height);
+		int newStartY = (int) Math.max(0, Math.min((newY / 10), grid[0].length - 1));
+		int newEndY = Math.max(0, Math.min(getEndGrid(newY, height), grid[0].length - 1));
 
 		for (int gridX = newStartX; gridX <= newEndX; gridX++) {
             for (int gridY = newStartY; gridY <= newEndY; gridY++) {
@@ -55,11 +63,11 @@ public class ThreadSafeBackgroundGrid {
 	}
 
 	public synchronized boolean addCreature(double x, double y, double width, double height, int creatureId){
-		int startX = (int) (x / 10);
-        int endX = getEndGrid(x, width);
+		int startX = (int) Math.max(0, Math.min((x / 10), grid.length - 1));
+		int endX = Math.max(0, Math.min(getEndGrid(x, width), grid.length - 1));
 
-        int startY = (int) (y / 10);
-        int endY = getEndGrid(y, height);
+		int startY = (int) Math.max(0, Math.min((y / 10), grid[0].length - 1));
+		int endY = Math.max(0, Math.min(getEndGrid(y, height), grid[0].length - 1));
 
 		for (int gridX = startX; gridX <= endX; gridX++) {
             for (int gridY = startY; gridY <= endY; gridY++) {
@@ -81,11 +89,11 @@ public class ThreadSafeBackgroundGrid {
 	}
 
 	public synchronized void removeCreature(double x, double y, double width, double height, int creatureId){
-		int startX = (int) (x / 10);
-        int endX = getEndGrid(x, width);
+		int startX = (int) Math.max(0, Math.min((x / 10), grid.length - 1));
+		int endX = Math.max(0, Math.min(getEndGrid(x, width), grid.length - 1));
 
-        int startY = (int) (y / 10);
-        int endY = (int) ((y + height) / 10);
+		int startY = (int) Math.max(0, Math.min((y / 10), grid[0].length - 1));
+		int endY = Math.max(0, Math.min(getEndGrid(y, height), grid[0].length - 1));
 
 		for (int gridX = startX; gridX <= endX; gridX++) {
             for (int gridY = startY; gridY <= endY; gridY++) {

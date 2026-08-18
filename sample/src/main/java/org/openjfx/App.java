@@ -108,8 +108,8 @@ public class App extends Application {
 		while(createdCreatures < INITIAL_CREATURES){
 			int width = 10;
 			int height = 10;
-			double x = Math.random() * (WORLD_WIDTH - 10);
-			double y = Math.random() * (WORLD_HEIGHT - 10);
+			double x = Math.random() * (WORLD_WIDTH - width);
+			double y = Math.random() * (WORLD_HEIGHT - height);
 			double hp = Math.random() * 100 + 100;
 			double baseAttack = Math.random() * 10 + 1;
 
