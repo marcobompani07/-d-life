@@ -23,11 +23,11 @@ public class ThreadSafeCreatureUpdateCounter {
 		if(counter >= max){
 			long currentTime=System.currentTimeMillis();
 			if ((currentTime-startTime)<=10){
-				//System.out.println("sleeping");
+				System.out.println("sleeping");
 				Thread.sleep(10-(currentTime-startTime));
 			}else{
-				//System.out.println("not sleeping");
-				//System.err.println("cicle time:"+(currentTime-startTime));
+				System.out.println("not sleeping");
+				System.err.println("cicle time:"+(currentTime-startTime));
 			}
 			
 			startTime=System.currentTimeMillis();

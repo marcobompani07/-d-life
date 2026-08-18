@@ -20,7 +20,7 @@ public class App extends Application {
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 
-    static final double WORLD_MULTIPLIYER = 3;
+    static final double WORLD_MULTIPLIYER = 10;
 	static final double WORLD_WIDTH = 1000*WORLD_MULTIPLIYER;
     static final int UNIT_DIVISION = 1000;
 	static double WORLD_HEIGHT = 0;

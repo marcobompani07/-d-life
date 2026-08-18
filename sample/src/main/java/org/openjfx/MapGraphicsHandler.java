@@ -60,13 +60,11 @@ public class MapGraphicsHandler {
         if( offsetX+offset>0){
             offsetX=0;
         }else if((-(offsetX+offset)>((App.WORLD_WIDTH*standardUnit*App.ZOOM-canvasWidth)))){ 
-            System.out.println("resetted:"+offsetX+offset);
             offsetX=-((App.WORLD_WIDTH*standardUnit*App.ZOOM-canvasWidth));
         }else{
             
             offsetX+=offset;
         }
-        System.out.println("x:"+offsetX);
     }
     public void addOffsetY(double offset){
         if(offsetY+offset>0){
@@ -76,6 +74,5 @@ public class MapGraphicsHandler {
         }else{
             offsetY+=offset;
         }
-        System.out.println("y:"+offsetY);
     }
 }
