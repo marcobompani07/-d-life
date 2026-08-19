@@ -78,6 +78,7 @@ public class App extends Application {
                 hasDragged=false;
             }
         });
+
         
         Spinner<Integer> zoomSpinner=new Spinner(10,500,100,10);
         zoomSpinner.setEditable(true);
@@ -107,7 +108,7 @@ public class App extends Application {
 
 		Creature[] creatures = new Creature[MAX_CREATURES];
         Food[] foodArray=new Food[/*MAX_CREATURES / 10*/10000];
-        BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)WORLD_WIDTH / 10][(int)WORLD_HEIGHT / 10];
+        BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)(WORLD_WIDTH+1) / 10][(int)(WORLD_HEIGHT+1) / 10];
 
         for(int i=0;i<backgroundGrid.length;i++){
             for(int i2=0;i2<backgroundGrid[i].length;i2++){
@@ -137,6 +138,17 @@ public class App extends Application {
 			workers[i] = new CreatureWorker(actionHandler);
 			workers[i].start();
 		}
+
+        canvas.setOnMouseClicked(in->{
+            double x=(-in.getX()+mapGrapychHandler.getOffsetX())/standardUnit;
+            double y=(-in.getY()+mapGrapychHandler.getOffsetY())/standardUnit;
+            System.out.println("x:"+(int)x+"worldWidth"+WORLD_WIDTH);
+            System.out.println("y:"+(int)y+"worldHeigth"+WORLD_HEIGHT);
+            mapGrapychHandler.focusCreature(-1);
+            creatureInfoDisplayThread.setCreatureId(-1);
+            creatureColorShowPane.setStyle("");
+            dispayCreatureLabel.setText("");
+        });
 
         foodGeneratorThread.start();
 		movmentHandlingThread.start();

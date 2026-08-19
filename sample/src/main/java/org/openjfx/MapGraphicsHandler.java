@@ -20,6 +20,7 @@ public class MapGraphicsHandler {
         this.canvasHeight = canvasHeight;
         offsetX=0;
         offsetY=0;
+        focusedCreatureId=-1;
     }
    
 
@@ -99,6 +100,17 @@ public class MapGraphicsHandler {
             offsetY=offset;
         }
     }
+
+    public double getOffsetX() {
+        return this.offsetX;
+    }
+
+
+    public double getOffsetY() {
+        return this.offsetY;
+    }
+
+
     public void focusCreature(int id){
         this.focusedCreatureId=id;
     }

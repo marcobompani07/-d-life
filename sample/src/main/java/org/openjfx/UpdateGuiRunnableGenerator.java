@@ -7,6 +7,8 @@ public class UpdateGuiRunnableGenerator  {
         this.mapGrapychHandler=mapGrapychHandler;
         this.counter=counter;
     }
+
+    
     public Runnable generate(Creature[] creatures, Food[] foodArray){
         return new Runnable() {
             @Override
