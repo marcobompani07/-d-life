@@ -10,6 +10,7 @@ public class MapGraphicsHandler {
     private  double canvasHeight;
     private double  offsetX;
     private double  offsetY;
+    private int focusedCreatureId;
 
 
     public MapGraphicsHandler(GraphicsContext gc, double standardUnit , double canvasWidth, double canvasHeight) {
@@ -27,6 +28,10 @@ public class MapGraphicsHandler {
         for (int i=0;i<creatures.length;i++) {
             Creature creature=creatures[i];
             if(creature!=null){
+                if(focusedCreatureId==i){
+                    setOffsetX(((-(creature.getX()+creature.getWidth()/2)*standardUnit*App.ZOOM)+canvasWidth/2));
+                    setOffsetY(((-(creature.getY()+creature.getHeight()/2)*standardUnit*App.ZOOM)+canvasHeight/2));
+                }
                 gc.setFill(creature.getColor());
                 gc.fillRect(creature.getX()*standardUnit *App.ZOOM+offsetX,creature.getY()*standardUnit*App.ZOOM+offsetY,creature.getWidth()*standardUnit*App.ZOOM,creature.getHeight()*standardUnit*App.ZOOM);
             }
@@ -74,5 +79,27 @@ public class MapGraphicsHandler {
         }else{
             offsetY+=offset;
         }
+    }
+
+    public void setOffsetX(double offset){
+        if(offset>0){
+            offsetX=0;
+        }else if((-(offset))>((App.WORLD_WIDTH*standardUnit*App.ZOOM-canvasWidth))){ 
+            offsetX=(-(App.WORLD_WIDTH*standardUnit*App.ZOOM-canvasWidth));
+        }else{
+            offsetX=offset;
+        }
+    }
+    public void setOffsetY(double offset){
+        if(offset>0){
+            offsetY=0;
+        }else if((-(offset))>((App.WORLD_HEIGHT*standardUnit*App.ZOOM-canvasHeight))){ 
+            offsetY=(-(App.WORLD_HEIGHT*standardUnit*App.ZOOM-canvasHeight));
+        }else{
+            offsetY=offset;
+        }
+    }
+    public void focusCreature(int id){
+        this.focusedCreatureId=id;
     }
 }

@@ -2,21 +2,30 @@ package org.openjfx;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
+<<<<<<< HEAD
     private static final int MAX_CREATURES = 10000;
 	private static final int INITIAL_CREATURES = 10000;
     private static final int FOODSPAWNOUNT = 100;
+=======
+    private static final int MAX_CREATURES = 100;
+	private static final int INITIAL_CREATURES = 100;
+    private static final int FOODSPAWNOUNT = 1000;
+>>>>>>> f8c7824325a6742d3c7b38437b32bf470756a3e2
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 
@@ -89,9 +98,21 @@ public class App extends Application {
         topBar.setStyle("-fx-padding: "+(10*standardUnit)+"px;-fx-background-color: #494848;");
         topBar.setSpacing(15*standardUnit);
         root.setTop(topBar);
+        Label dispayCreatureLabel=new Label();
+        dispayCreatureLabel.setTextFill(Color.web("#ffffff"));
+        Pane creatureColorShowPane=new Pane();
+        creatureColorShowPane.setMaxSize(50*standardUnit, 50*standardUnit);
+        creatureColorShowPane.setMinSize(50*standardUnit, 50*standardUnit);
+        VBox rigthBar=new VBox(10*standardUnit,creatureColorShowPane,dispayCreatureLabel);
+        rigthBar.setAlignment(Pos.TOP_CENTER);
+        rigthBar.setStyle("-fx-padding: "+(10*standardUnit)+"px;-fx-background-color: #494848;");
+        rigthBar.setSpacing(15*standardUnit);
+        rigthBar.setMaxWidth(standardUnit*150);
+        rigthBar.setMinWidth(standardUnit*150);
+        root.setRight(rigthBar);
 
 		Creature[] creatures = new Creature[MAX_CREATURES];
-        Food[] foodArray=new Food[MAX_CREATURES / 10];
+        Food[] foodArray=new Food[/*MAX_CREATURES / 10*/10000];
         BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)WORLD_WIDTH / 10][(int)WORLD_HEIGHT / 10];
 
         for(int i=0;i<backgroundGrid.length;i++){
@@ -120,16 +141,18 @@ public class App extends Application {
 				createdCreatures++;
 			}
 		}
-		
+
+		ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
+        UpdateCreatureDisplayRunnableGenerator updateCreatureDisplayRunnableGenerator=new UpdateCreatureDisplayRunnableGenerator(dispayCreatureLabel,creatureColorShowPane);
+        CreatureInfoDisplayThread creatureInfoDisplayThread=new CreatureInfoDisplayThread(updateCreatureDisplayRunnableGenerator, creaturesArray);
         FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,App.FOODSPAWNOUNT);
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
-        ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
-		
+		mapGrapychHandler.focusCreature(1);
 		workers = new CreatureWorker[WORKER_COUNT];
-
+        creatureInfoDisplayThread.setCreatureId(1);
 		for (int i = 0; i < WORKER_COUNT; i++) {
 			CreatureActionHandler actionHandler = new CreatureActionHandler(creaturesArray, updateCounter);
 			workers[i] = new CreatureWorker(actionHandler);
@@ -138,11 +161,12 @@ public class App extends Application {
 
         foodGeneratorThread.start();
 		movmentHandlingThread.start();
-        
+        creatureInfoDisplayThread.start();
         stage.setOnCloseRequest(event -> {
 
             movmentHandlingThread.Stop();
             foodGeneratorThread.Stop();
+            creatureInfoDisplayThread.Stop();
 			for (CreatureWorker worker : workers) {
                 worker.stopWorker();
             }
