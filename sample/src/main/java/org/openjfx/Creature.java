@@ -17,6 +17,8 @@ public class Creature {
 	private double baseAttack;
 	private int view;
 	private int attackRange;
+	private long lastAttackTime = 0;
+	private static final long ATTACK_COOLDOWN = 500;
 	private ThreadSafeFoodArray foodArray;
 	private ThreadSafeCreaturesArray creatureArray;
 	private BackgroundGridElement[][] backgroundGrid;
@@ -107,20 +109,25 @@ public class Creature {
 			Creature closestCreature = (Creature) closestCreatureData[0];
 			double closestCreatureDistance = (double) closestCreatureData[1];
 
-			if(closestCreature != null && closestCreatureDistance <= this.getAttackRange()){
-				closestCreature.takeDamage(weightedAttack);
-			}else{
-				if(move(newX, newY)){
-					this.setHunger(this.getHunger() + this.getSpeed() / 100);
+			if(closestCreature != null && closestCreatureDistance <= this.getAttackRange() * 10){
+				long currentTime = System.currentTimeMillis();
 
-					if(this.getHunger() >= 100){
-						threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
-						creatureArray.removeCreature(this.getId());
-					}
-				}else{
-					this.setDirectionX(this.getDirectionX() * -1);
-					this.setDirectionY(this.getDirectionY() * -1);
+				if(currentTime - lastAttackTime >= ATTACK_COOLDOWN){
+					closestCreature.takeDamage(weightedAttack);
+					lastAttackTime = currentTime;
 				}
+			}
+
+			if(move(newX, newY)){
+				this.setHunger(this.getHunger() + this.getSpeed() / 100);
+
+				if(this.getHunger() >= 100){
+					threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+					creatureArray.removeCreature(this.getId());
+				}
+			}else{
+				this.setDirectionX(this.getDirectionX() * -1);
+				this.setDirectionY(this.getDirectionY() * -1);
 			}
 		}
 	}
@@ -179,16 +186,18 @@ public class Creature {
 		Creature closestCreature = null;
 		double closestDistance = Double.MAX_VALUE;
 
-		int gridPositionX = (int) (this.getX() / 10);
-		int gridPositionY = (int) (this.getY() / 10);
+		int startX = (int) Math.max(0, Math.min(this.getX() / 10, backgroundGrid.length - 1));
+		int endX = (int) Math.max(0, Math.min(((this.getX() + this.getWidth()) / 10) - 1, backgroundGrid.length - 1));
 
-		int startX = gridPositionX - this.getAttackRange();
-		int endX = gridPositionX + this.getAttackRange();
-		int startY = gridPositionY - this.getAttackRange();
-		int endY = gridPositionY + this.getAttackRange();
+		int startY = (int) Math.max(0, Math.min(this.getY() / 10, backgroundGrid[0].length - 1));
+		int endY = (int) Math.max(0, Math.min(((this.getY() + this.getHeight()) / 10) - 1, backgroundGrid[0].length - 1));
 
-		for (int x = startX; x <= endX; x++) {
-        	for (int y = startY; y <= endY; y++) {
+		int range = this.getAttackRange();
+
+		for (int x = startX - range; x <= endX + range; x++) {
+
+        	for (int y = startY - range; y <= endY + range; y++) {
+
 				if(x >= 0 && x < backgroundGrid.length && y >= 0 && y < backgroundGrid[0].length){
 
 					int creatureId = threadSafeBackgroundGrid.getCreature(x, y);
@@ -197,8 +206,13 @@ public class Creature {
 						Creature creature = creatureArray.getCreature(creatureId);
 
 						if(creature != null){
-							double distance = Math.sqrt(Math.pow(creature.getX() - this.getX(), 2) + Math.pow(creature.getY() - this.getY(), 2));
-							if(distance < closestDistance){
+
+							double distanceX = Math.max(0, Math.max(this.getX() - (creature.getX() + creature.getWidth()), creature.getX() - (this.getX() + this.getWidth())));
+							double distanceY = Math.max(0, Math.max(this.getY() - (creature.getY() + creature.getHeight()), creature.getY() - (this.getY() + this.getHeight())));
+
+							double distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+							
+							if(distance < closestDistance && distance <= this.getAttackRange() * 10){
 								closestDistance = distance;
 								closestCreature = creature;
 							}
