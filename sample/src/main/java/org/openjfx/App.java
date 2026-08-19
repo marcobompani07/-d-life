@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 public class App extends Application {
     private static final int MAX_CREATURES = 1000;
 	private static final int INITIAL_CREATURES = 1000;
-    private static final int FOODSPAWNOUNT = 1000;
+    private static final int FOODSPAWNOUNT = 100;
 
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
@@ -108,7 +108,7 @@ public class App extends Application {
         root.setRight(rigthBar);
 
 		Creature[] creatures = new Creature[MAX_CREATURES];
-        Food[] foodArray=new Food[MAX_CREATURES / 10];
+        Food[] foodArray=new Food[MAX_CREATURES ];
         BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)(WORLD_WIDTH+1) / 10][(int)(WORLD_HEIGHT+1) / 10];
 
         for(int i=0;i<backgroundGrid.length;i++){
@@ -131,7 +131,7 @@ public class App extends Application {
 			double hp = Math.random() * 100 + 100;
 			double baseAttack = Math.random() * 10 + 1;
 
-			Creature creature = new Creature(createdCreatures, x, y, width, height, hp, baseAttack, Color.color(Math.random(), Math.random(), Math.random()), Math.random() + 1, threadSafeFoodArray, creaturesArray, backgroundGrid, threadSafeBackgroundGrid);
+			Creature creature = new Creature(createdCreatures, x, y, width, height, hp, baseAttack, Color.color(Math.random(), Math.random(), Math.random()), Math.random() +0.2, threadSafeFoodArray, creaturesArray, backgroundGrid, threadSafeBackgroundGrid);
 			
 			if(threadSafeBackgroundGrid.addCreature(x, y, width, height, createdCreatures)){
 				creatures[createdCreatures] = creature;
@@ -158,7 +158,17 @@ public class App extends Application {
         canvas.setOnMouseClicked(in->{
             double x=-((-in.getX()+mapGrapychHandler.getOffsetX())/standardUnit);
             double y=-((-in.getY()+mapGrapychHandler.getOffsetY())/standardUnit);
-            int index=backgroundGrid[((int)x)/10][((int)y)/10].getCreature();
+            int index=-1;
+            for(int i2=0;i2<3;i2++){
+                for (int i=0;i<3;i++) {
+                    int indexX=((int)x)/10+(i2-1);
+                    int indexY=((int)y)/10+(i-1);
+                    if(indexX!=0&&indexY!=0&&index==-1){
+                        index=backgroundGrid[indexX][indexY].getCreature();
+                    }
+                }
+            }
+            
             mapGrapychHandler.focusCreature(index);
             creatureInfoDisplayThread.setCreatureId(index);
             creatureColorShowPane.setStyle("");
