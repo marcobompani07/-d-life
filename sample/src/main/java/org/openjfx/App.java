@@ -156,12 +156,11 @@ public class App extends Application {
 		}
 
         canvas.setOnMouseClicked(in->{
-            double x=(-in.getX()+mapGrapychHandler.getOffsetX())/standardUnit;
-            double y=(-in.getY()+mapGrapychHandler.getOffsetY())/standardUnit;
-            System.out.println("x:"+(int)x+"worldWidth"+WORLD_WIDTH);
-            System.out.println("y:"+(int)y+"worldHeigth"+WORLD_HEIGHT);
-            mapGrapychHandler.focusCreature(-1);
-            creatureInfoDisplayThread.setCreatureId(-1);
+            double x=-((-in.getX()+mapGrapychHandler.getOffsetX())/standardUnit);
+            double y=-((-in.getY()+mapGrapychHandler.getOffsetY())/standardUnit);
+            int index=backgroundGrid[((int)x)/10][((int)y)/10].getCreature();
+            mapGrapychHandler.focusCreature(index);
+            creatureInfoDisplayThread.setCreatureId(index);
             creatureColorShowPane.setStyle("");
             dispayCreatureLabel.setText("");
         });
