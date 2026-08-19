@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 public class App extends Application {
     private static final int MAX_CREATURES = 100;
 	private static final int INITIAL_CREATURES = 100;
-    private static final int FOODSPAWNOUNT = 0;
+    private static final int FOODSPAWNOUNT = 1000;
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 
@@ -106,7 +106,7 @@ public class App extends Application {
         root.setRight(rigthBar);
 
 		Creature[] creatures = new Creature[MAX_CREATURES];
-        Food[] foodArray=new Food[MAX_CREATURES / 10];
+        Food[] foodArray=new Food[/*MAX_CREATURES / 10*/10000];
         BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)WORLD_WIDTH / 10][(int)WORLD_HEIGHT / 10];
 
         for(int i=0;i<backgroundGrid.length;i++){
@@ -129,7 +129,7 @@ public class App extends Application {
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
-		
+		mapGrapychHandler.focusCreature(1);
 		workers = new CreatureWorker[WORKER_COUNT];
         creatureInfoDisplayThread.setCreatureId(1);
 		for (int i = 0; i < WORKER_COUNT; i++) {

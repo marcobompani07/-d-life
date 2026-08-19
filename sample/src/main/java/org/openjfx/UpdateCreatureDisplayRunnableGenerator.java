@@ -17,7 +17,7 @@ public class UpdateCreatureDisplayRunnableGenerator {
         return new Runnable() {
             @Override
             public void run(){
-                creatureColorShowPane.setStyle("-fx-background-color:"+creatureColor.toString().substring(2, 8));
+                creatureColorShowPane.setStyle("-fx-background-color:#"+creatureColor.toString().substring(2, 8)+";");
                 displayLabel.setText("id:"+creatureId+"\n"+"color:"+creatureColor+"\n"+"speed"+speed+"\n"+"hunger:"+hunger);
             }
         };
