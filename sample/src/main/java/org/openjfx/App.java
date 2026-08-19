@@ -17,9 +17,10 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private static final int MAX_CREATURES = 100;
-	private static final int INITIAL_CREATURES = 100;
+    private static final int MAX_CREATURES = 1000;
+	private static final int INITIAL_CREATURES = 1000;
     private static final int FOODSPAWNOUNT = 1000;
+
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 
@@ -107,7 +108,7 @@ public class App extends Application {
         root.setRight(rigthBar);
 
 		Creature[] creatures = new Creature[MAX_CREATURES];
-        Food[] foodArray=new Food[/*MAX_CREATURES / 10*/10000];
+        Food[] foodArray=new Food[MAX_CREATURES / 10];
         BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)(WORLD_WIDTH+1) / 10][(int)(WORLD_HEIGHT+1) / 10];
 
         for(int i=0;i<backgroundGrid.length;i++){
@@ -116,13 +117,28 @@ public class App extends Application {
             }
         }
 
+		ThreadSafeBackgroundGrid threadSafeBackgroundGrid = new ThreadSafeBackgroundGrid(backgroundGrid);
+
         ThreadSafeFoodArray threadSafeFoodArray=new ThreadSafeFoodArray(foodArray);
+		ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
 		
-		for(int i = 0; i < INITIAL_CREATURES; i++) {
-			creatures[i] = new Creature(i, Math.random() *WORLD_WIDTH, Math.random() * WORLD_HEIGHT, 10, 10, Color.color(Math.random(), Math.random(), Math.random()), Math.random() + 1, threadSafeFoodArray, backgroundGrid);
+		int createdCreatures = 0;
+		while(createdCreatures < INITIAL_CREATURES){
+			int width = 10;
+			int height = 10;
+			double x = Math.random() * (WORLD_WIDTH - width);
+			double y = Math.random() * (WORLD_HEIGHT - height);
+			double hp = Math.random() * 100 + 100;
+			double baseAttack = Math.random() * 10 + 1;
+
+			Creature creature = new Creature(createdCreatures, x, y, width, height, hp, baseAttack, Color.color(Math.random(), Math.random(), Math.random()), Math.random() + 1, threadSafeFoodArray, creaturesArray, backgroundGrid, threadSafeBackgroundGrid);
+			
+			if(threadSafeBackgroundGrid.addCreature(x, y, width, height, createdCreatures)){
+				creatures[createdCreatures] = creature;
+				createdCreatures++;
+			}
 		}
 
-		ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
         UpdateCreatureDisplayRunnableGenerator updateCreatureDisplayRunnableGenerator=new UpdateCreatureDisplayRunnableGenerator(dispayCreatureLabel,creatureColorShowPane);
         CreatureInfoDisplayThread creatureInfoDisplayThread=new CreatureInfoDisplayThread(updateCreatureDisplayRunnableGenerator, creaturesArray);
         FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,App.FOODSPAWNOUNT);

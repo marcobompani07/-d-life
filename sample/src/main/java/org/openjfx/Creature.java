@@ -6,16 +6,23 @@ public class Creature {
 	private int id;
 	private double x;
 	private double y;
+	private double directionX;
+	private double directionY;
 	private double width;
 	private double height;
 	private Color color;
 	private double speed;
 	private double hunger;
+	private double hp;
+	private double baseAttack;
 	private int view;
+	private int attackRange;
 	private ThreadSafeFoodArray foodArray;
+	private ThreadSafeCreaturesArray creatureArray;
 	private BackgroundGridElement[][] backgroundGrid;
+	private ThreadSafeBackgroundGrid threadSafeBackgroundGrid;
 
-	public Creature(int id, double x, double y, double width, double height,Color color, double speed, ThreadSafeFoodArray foodArray, BackgroundGridElement[][] backgroundGrid) {
+	public Creature(int id, double x, double y, double width, double height, double hp, double baseAttack, Color color, double speed, ThreadSafeFoodArray foodArray, ThreadSafeCreaturesArray creaturesArray, BackgroundGridElement[][] backgroundGrid, ThreadSafeBackgroundGrid threadSafeBackgroundGrid) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -24,27 +31,38 @@ public class Creature {
 		this.speed = speed;
 		this.color= color;
 		this.hunger = 0;
+		this.hp = hp;
+		this.baseAttack = baseAttack;
 		this.view = 5;
+		this.attackRange = 1;
 		this.foodArray = foodArray;
+		this.creatureArray = creaturesArray;
 		this.backgroundGrid = backgroundGrid;
+		this.threadSafeBackgroundGrid = threadSafeBackgroundGrid;
+
+		double angle = Math.random() * 2 * Math.PI;
+		this.setDirectionX(Math.cos(angle));
+		this.setDirectionY(Math.sin(angle));
 	}
 
 	public Creature (Creature c) {
-		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(),c.getColor(), c.getSpeed(), c.getFoodArray(), c.getBackgroundGrid());
+		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), c.getHp(), c.getBaseAttack(), c.getColor(), c.getSpeed(), c.getFoodArray(), c.getCratureArray(), c.getBackgroundGrid(), c.getThreadSafeBackgroundGrid());
 	}
 
 	public Creature() {
-		this(0, 0, 0, 10, 10,Color.RED, 2.0, null, null);
+		this(0, 0, 0, 10, 10, 100, 5,Color.RED, 2.0, null, null, null, null);
 	}
 
 	public void update() throws InterruptedException{
 
-		if(this.getHunger() < 100){
+		if(this.getHunger() < 100 && this.getHp() > 0){
 			double weightedSpeed = this.getSpeed();
+			double weightedAttack = this.getBaseAttack();
 
 			if(this.getHunger() >= 60){
 				double hungerEffect = (this.getHunger() - 60) / 40;
 				weightedSpeed = this.getSpeed() * (1 - hungerEffect);
+				weightedAttack = this.getBaseAttack() * (1 - hungerEffect);
 			}
 
 			Object [] closestFoodData = findClosestFood();
@@ -54,14 +72,28 @@ public class Creature {
 			double newX, newY;
 
 			if(closestFood != null && closestDistance > 0){
-				double directionX = (closestFood.getX() - this.getX()) / closestDistance;
-				double directionY = (closestFood.getY() - this.getY()) / closestDistance;
+				double newDirectionX = (closestFood.getX() - this.getX()) / closestDistance;
+				double newDirectionY = (closestFood.getY() - this.getY()) / closestDistance;
 
-				newX = this.getX() + directionX * weightedSpeed;
-				newY = this.getY() + directionY * weightedSpeed;	
+				newX = this.getX() + newDirectionX * weightedSpeed;
+				newY = this.getY() + newDirectionY * weightedSpeed;	
 			}else{
-				newX = this.getX() + Math.random() * (weightedSpeed * 2) - (weightedSpeed * 2) / 2;
-				newY = this.getY() + Math.random() * (weightedSpeed * 2) - (weightedSpeed * 2) / 2;
+				if(Math.random() < 0.01){
+					double angle = Math.random() * 2 * Math.PI;
+					this.setDirectionX(Math.cos(angle));
+					this.setDirectionY(Math.sin(angle));
+				}
+
+				newX = this.getX() + this.getDirectionX() * weightedSpeed;
+				newY = this.getY() + this.getDirectionY() * weightedSpeed;
+
+				if(newX <= 0 || newX >= App.WORLD_WIDTH - this.getWidth()){
+					this.setDirectionX(this.getDirectionX() * -1);
+				}
+
+				if(newY <= 0 || newY >= App.WORLD_HEIGHT - this.getHeight()){
+					this.setDirectionY(this.getDirectionY() * -1);
+				}
 			}
 
 			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
@@ -70,11 +102,40 @@ public class Creature {
 			if(closestFood != null){
 				eatFood(closestFood, closestFood.getId(), newX, newY);
 			}
-			
-			move(newX, newY);
 
-			this.setHunger(this.getHunger() + this.getSpeed() / 100);
+			Object[] closestCreatureData = findClosestCreature();
+			Creature closestCreature = (Creature) closestCreatureData[0];
+			double closestCreatureDistance = (double) closestCreatureData[1];
+
+			if(closestCreature != null && closestCreatureDistance <= this.getAttackRange()){
+				closestCreature.takeDamage(weightedAttack);
+			}else{
+				if(move(newX, newY)){
+					this.setHunger(this.getHunger() + this.getSpeed() / 100);
+
+					if(this.getHunger() >= 100){
+						threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+						creatureArray.removeCreature(this.getId());
+					}
+				}else{
+					this.setDirectionX(this.getDirectionX() * -1);
+					this.setDirectionY(this.getDirectionY() * -1);
+				}
+			}
 		}
+	}
+
+	public synchronized boolean takeDamage(double damage){
+		this.setHp(this.getHp() - damage);
+
+		if(this.getHp() <= 0){
+			threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+			creatureArray.removeCreature(this.getId());
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private Object[] findClosestFood() throws InterruptedException{
@@ -113,6 +174,42 @@ public class Creature {
 
 		return new Object[]{closestFood, closestDistance};
 	}
+	
+	private Object[] findClosestCreature() throws InterruptedException{
+		Creature closestCreature = null;
+		double closestDistance = Double.MAX_VALUE;
+
+		int gridPositionX = (int) (this.getX() / 10);
+		int gridPositionY = (int) (this.getY() / 10);
+
+		int startX = gridPositionX - this.getAttackRange();
+		int endX = gridPositionX + this.getAttackRange();
+		int startY = gridPositionY - this.getAttackRange();
+		int endY = gridPositionY + this.getAttackRange();
+
+		for (int x = startX; x <= endX; x++) {
+        	for (int y = startY; y <= endY; y++) {
+				if(x >= 0 && x < backgroundGrid.length && y >= 0 && y < backgroundGrid[0].length){
+
+					int creatureId = threadSafeBackgroundGrid.getCreature(x, y);
+
+					if(creatureId != -1 && creatureId != this.getId()){
+						Creature creature = creatureArray.getCreature(creatureId);
+
+						if(creature != null){
+							double distance = Math.sqrt(Math.pow(creature.getX() - this.getX(), 2) + Math.pow(creature.getY() - this.getY(), 2));
+							if(distance < closestDistance){
+								closestDistance = distance;
+								closestCreature = creature;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return new Object[]{closestCreature, closestDistance};
+	}
 
 	private void eatFood(Food food, int foodId, double newX, double newY) throws InterruptedException{
 		if(food == null){
@@ -143,9 +240,15 @@ public class Creature {
 		}
 	}
 
-	public synchronized void move(double newX, double newY) {
-		this.x = newX;
-		this.y = newY;
+	public boolean move(double newX, double newY) {
+		boolean moved = threadSafeBackgroundGrid.moveCreature(this.getX(), this.getY(), newX, newY, this.getWidth(), this.getHeight(), this.getId());
+
+		if(moved){
+			this.x = newX;
+			this.y = newY;
+		}
+
+		return moved;
 	}
 
 	public synchronized  int getId() {
@@ -212,12 +315,55 @@ public class Creature {
 		return view;
 	}
 
+	public synchronized int getAttackRange(){
+		return attackRange;
+	}
+
+	public synchronized double getHp(){
+		return hp;
+	}
+
+	public synchronized void setHp(double hp){
+		this.hp = hp;
+	}
+
+	public synchronized double getBaseAttack(){
+		return baseAttack;
+	}
+
+	public synchronized void setBaseAttack(double baseAttack){
+		this.baseAttack = baseAttack;
+	}
+
+	public synchronized double getDirectionX() {
+		return directionX;
+	}
+
+	public synchronized  void setDirectionX(double directionX) {
+		this.directionX = directionX;
+	}
+
+	public synchronized double getDirectionY() {
+		return directionY;
+	}
+
+	public synchronized void setDirectionY(double directionY) {
+		this.directionY = directionY;
+	}
+
 	public synchronized ThreadSafeFoodArray getFoodArray() {
 		return foodArray;
+	}
+
+	public synchronized ThreadSafeCreaturesArray getCratureArray() {
+		return creatureArray;
 	}
 
 	public synchronized BackgroundGridElement[][] getBackgroundGrid() {
 		return backgroundGrid;
 	}
 
+	public synchronized ThreadSafeBackgroundGrid getThreadSafeBackgroundGrid() {
+		return threadSafeBackgroundGrid;
+	}
 }

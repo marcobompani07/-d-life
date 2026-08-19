@@ -36,5 +36,13 @@ public class ThreadSafeCreaturesArray {
         return creatures.length;
     }
 
+	public synchronized Creature getCreature(int i){
+		return creatures[i];
+	}
+
+	public synchronized void removeCreature(int i){
+		creatures[i] = null;
+		notifyAll();
+	}
 
 }
