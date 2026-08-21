@@ -25,8 +25,10 @@ public class CreatureInfoDisplayThread extends Thread {
                         Color color=creature.getColor();
                         double speed=creature.getSpeed();
                         double hunger=creature.getHunger();
+                        double hp=creature.getHp();
+                        double baseAttak=creature.getBaseAttack();
                         creaturesArray.release(creatureId);
-                        Platform.runLater(RunnableGenerator.generate(creatureId, color, speed, hunger));
+                        Platform.runLater(RunnableGenerator.generate(creatureId, color, speed, hunger,hp,baseAttak));
                         
                     }else{
                         creaturesArray.release(creatureId);
