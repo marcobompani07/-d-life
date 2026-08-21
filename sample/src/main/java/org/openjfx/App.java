@@ -44,7 +44,9 @@ public class App extends Application {
         stage.setScene(scene);
         stage.show();
         Pane backgroundPane= new Pane();
-        backgroundPane.setStyle("-fx-background-color: #343434;");
+        backgroundPane.setStyle("-fx-background-color: #343434;" );
+        root.setCenter(backgroundPane);
+        //backgroundPane.setStyle("-fx-background-image: url("+getClass().getResource("/img/checkerboard-20x20.png").toExternalForm()+"); " +"-fx-background-repeat: repeat; " );
         root.setCenter(backgroundPane);
         backgroundPane.setMaxWidth(stage.getWidth()*0.75);
         backgroundPane.setMaxHeight(stage.getHeight()*0.75);
@@ -146,9 +148,9 @@ public class App extends Application {
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
-		mapGrapychHandler.focusCreature(1);
+		mapGrapychHandler.focusCreature(-1);
 		workers = new CreatureWorker[WORKER_COUNT];
-        creatureInfoDisplayThread.setCreatureId(1);
+        creatureInfoDisplayThread.setCreatureId(-1);
 		for (int i = 0; i < WORKER_COUNT; i++) {
 			CreatureActionHandler actionHandler = new CreatureActionHandler(creaturesArray, updateCounter);
 			workers[i] = new CreatureWorker(actionHandler);
@@ -198,3 +200,4 @@ public class App extends Application {
 
 
 }
+
