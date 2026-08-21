@@ -2,6 +2,7 @@ package org.openjfx;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 
 public class MapGraphicsHandler {
     private GraphicsContext gc;
@@ -12,6 +13,9 @@ public class MapGraphicsHandler {
     private double  offsetY;
     private int focusedCreatureId;
 
+	private Image backgroundImage;
+	private static final double BACKGROUND_TILE_SIZE = 1024;
+
 
     public MapGraphicsHandler(GraphicsContext gc, double standardUnit , double canvasWidth, double canvasHeight) {
         this.gc = gc;
@@ -21,11 +25,16 @@ public class MapGraphicsHandler {
         offsetX=0;
         offsetY=0;
         focusedCreatureId=-1;
+
+		backgroundImage = new Image(getClass().getResource("/img/grass.png").toExternalForm());
     }
    
 
     public void update(Creature[] creatures,Food[] foodArray)  {
         gc.clearRect(0, 0, canvasWidth, canvasHeight);
+
+		drawBackground();
+
         for (int i=0;i<creatures.length;i++) {
             Creature creature=creatures[i];
             if(creature!=null){
@@ -37,6 +46,7 @@ public class MapGraphicsHandler {
                 gc.fillRect(creature.getX()*standardUnit *App.ZOOM+offsetX,creature.getY()*standardUnit*App.ZOOM+offsetY,creature.getWidth()*standardUnit*App.ZOOM,creature.getHeight()*standardUnit*App.ZOOM);
             }
         }
+
         for(int i=0;i<foodArray.length;i++){
             if(foodArray[i]!=null){
                 gc.setFill(Color.LIME);
@@ -45,6 +55,29 @@ public class MapGraphicsHandler {
             }
         }
     }
+
+	public void drawBackground(){
+		double tileWidth = BACKGROUND_TILE_SIZE * standardUnit * App.ZOOM;
+		double tileHeight = BACKGROUND_TILE_SIZE * standardUnit * App.ZOOM;
+
+		double worldWidth = App.WORLD_WIDTH * standardUnit * App.ZOOM;
+		double worldHeight = App.WORLD_HEIGHT * standardUnit * App.ZOOM;
+
+		int tilesX = (int) Math.ceil(worldWidth / tileWidth);
+		int tilesY = (int) Math.ceil(worldHeight / tileHeight);
+
+		for (int x = 0; x < tilesX; x++) {
+			for (int y = 0; y < tilesY; y++) {
+				gc.drawImage(
+					backgroundImage,
+					x * tileWidth + offsetX,
+					y * tileHeight + offsetY,
+					tileWidth,
+					tileHeight
+				);
+			}
+		}
+	}
 
     public GraphicsContext getGc() {
         return this.gc;
