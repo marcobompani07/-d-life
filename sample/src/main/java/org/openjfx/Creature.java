@@ -14,6 +14,7 @@ public class Creature {
 	private double speed;
 	private double hunger;
 	private double hp;
+	private double maxHp;
 	private double baseAttack;
 	private int view;
 	private int attackRange;
@@ -34,6 +35,7 @@ public class Creature {
 		this.color= color;
 		this.hunger = 0;
 		this.hp = hp;
+		this.maxHp = hp;
 		this.baseAttack = baseAttack;
 		this.view = 5;
 		this.attackRange = 1;
@@ -335,6 +337,10 @@ public class Creature {
 
 	public synchronized double getHp(){
 		return hp;
+	}
+
+	public synchronized double getMaxHp(){
+		return maxHp;
 	}
 
 	public synchronized void setHp(double hp){
