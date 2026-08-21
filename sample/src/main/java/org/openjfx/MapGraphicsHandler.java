@@ -68,7 +68,6 @@ public class MapGraphicsHandler {
         }else if((-(offsetX+offset)>((App.WORLD_WIDTH*standardUnit*App.ZOOM-canvasWidth)))){ 
             offsetX=-((App.WORLD_WIDTH*standardUnit*App.ZOOM-canvasWidth));
         }else{
-            
             offsetX+=offset;
         }
     }

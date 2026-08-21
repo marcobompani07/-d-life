@@ -88,9 +88,11 @@ public class App extends Application {
         Button zoomButton = new Button("SetZoom");
         zoomButton.setOnAction(e -> {
             int zoomValue=zoomSpinner.getValue();
-            mapGrapychHandler.addOffsetX((canvasWidth-(canvasWidth/((ZOOM*100)/((double)zoomValue))))/2*ZOOM);
-            mapGrapychHandler.addOffsetY((canvasHeight-(canvasHeight/((ZOOM*100)/((double)zoomValue))))/2*ZOOM);
+            double offsetX=(canvasWidth-(canvasWidth/((ZOOM*100)/((double)zoomValue))))/2*ZOOM;
+            double offsetY=(canvasHeight-(canvasHeight/((ZOOM*100)/((double)zoomValue))))/2*ZOOM;
             ZOOM=((double)zoomValue)/100;
+            mapGrapychHandler.addOffsetX(offsetX);
+            mapGrapychHandler.addOffsetY(offsetY);
         });
         HBox topBar = new HBox(10*standardUnit, zoomSpinner,zoomButton);
         topBar.setStyle("-fx-padding: "+(10*standardUnit)+"px;-fx-background-color: #494848;");
@@ -158,8 +160,8 @@ public class App extends Application {
 		}
 
         canvas.setOnMouseClicked(in->{
-            double x=-((-in.getX()+mapGrapychHandler.getOffsetX())/standardUnit);
-            double y=-((-in.getY()+mapGrapychHandler.getOffsetY())/standardUnit);
+            double x=-((-in.getX()+mapGrapychHandler.getOffsetX())/standardUnit)/ZOOM;
+            double y=-((-in.getY()+mapGrapychHandler.getOffsetY())/standardUnit)/ZOOM;
             int index=-1;
             for(int i2=0;i2<3;i2++){
                 for (int i=0;i<3;i++) {
