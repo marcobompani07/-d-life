@@ -26,7 +26,7 @@ public class MapGraphicsHandler {
         offsetY=0;
         focusedCreatureId=-1;
 
-		backgroundImage = new Image(getClass().getResource("/img/grass.png").toExternalForm());
+		backgroundImage = new Image(getClass().getResource("/img/terrain.jpg").toExternalForm());
     }
    
 
