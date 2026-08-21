@@ -44,7 +44,8 @@ public class App extends Application {
         stage.setScene(scene);
         stage.show();
         Pane backgroundPane= new Pane();
-        backgroundPane.setStyle("-fx-background-color: #343434;");
+       
+        backgroundPane.setStyle("-fx-background-image: url("+getClass().getResource("/img/checkerboard-20x20.png").toExternalForm()+"); " +"-fx-background-repeat: repeat; " );
         root.setCenter(backgroundPane);
         backgroundPane.setMaxWidth(stage.getWidth()*0.75);
         backgroundPane.setMaxHeight(stage.getHeight()*0.75);
@@ -198,3 +199,4 @@ public class App extends Application {
 
 
 }
+
