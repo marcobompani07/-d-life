@@ -1,8 +1,8 @@
 package org.openjfx;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 public class MapGraphicsHandler {
     private GraphicsContext gc;
