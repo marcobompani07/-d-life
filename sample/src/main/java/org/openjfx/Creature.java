@@ -57,6 +57,40 @@ public class Creature {
 		this(0, 0, 0, 10, 10, 100, 5,Color.RED, 2.0, null, null, null, null);
 	}
 
+	public void reproduct(){
+		double childWidth = 10;
+		double childHeight = 10;
+
+		double minRadius = 15;
+		double maxRadius = 40;
+		double radius = minRadius + Math.random() * (maxRadius - minRadius);
+		
+		double angle = Math.random() * 2 * Math.PI;
+		double spawnX = this.getX() + radius * Math.cos(angle);
+		double spawnY = this.getY() + radius * Math.sin(angle);
+		spawnX = Math.max(0, Math.min(App.WORLD_WIDTH - childWidth, spawnX));
+    	spawnY = Math.max(0, Math.min(App.WORLD_HEIGHT - childHeight, spawnY));
+
+		int newId = App.getCreatedCreatures();
+
+		double childHp = 
+
+	}
+
+	private double mutate(double baseValue, double mutationFactor, double min, double max){
+		double change = ((Math.random() * 2 - 1) * mutationFactor) + 1.0;
+		double mutatedValue = baseValue * change;
+		return Math.max(min, Math.min(max, mutatedValue));
+	}
+
+	private Color mutateColor(Color parentColor, double variation){
+		double r = Math.max(0, Math.min(1, parentColor.getRed() + (Math.random() * 2 - 1) * variation));
+		double g = Math.max(0, Math.min(1, parentColor.getGreen() + (Math.random() * 2 - 1) * variation));
+		double b = Math.max(0, Math.min(1, parentColor.getBlue() + (Math.random() * 2 - 1) * variation));
+
+		return Color.color(r, g, b);
+	}
+
 	public void update() throws InterruptedException{
 
 		if(this.getHunger() < 100 && this.getHp() > 0){
