@@ -20,6 +20,9 @@ public class Creature {
 	private int attackRange;
 	private long lastAttackTime = 0;
 	private static final long ATTACK_COOLDOWN = 500;
+	private double reproductionRate;
+	private long lastReproductionTime = 0;
+	private static final long REPRODUCTION_COOLDOWN = 10000;
 	private ThreadSafeFoodArray foodArray;
 	private ThreadSafeCreaturesArray creatureArray;
 	private BackgroundGridElement[][] backgroundGrid;
@@ -39,6 +42,7 @@ public class Creature {
 		this.baseAttack = baseAttack;
 		this.view = 5;
 		this.attackRange = 1;
+		this.reproductionRate = 0.1;
 		this.foodArray = foodArray;
 		this.creatureArray = creaturesArray;
 		this.backgroundGrid = backgroundGrid;
@@ -57,7 +61,13 @@ public class Creature {
 		this(0, 0, 0, 10, 10, 100, 5,Color.RED, 2.0, null, null, null, null);
 	}
 
-	public void reproduct(){
+	private void reproduct(){
+		int newId = creatureArray.getAvailableId();
+
+		if(newId == -1){
+			return;
+		}
+
 		double childWidth = 10;
 		double childHeight = 10;
 
@@ -71,10 +81,19 @@ public class Creature {
 		spawnX = Math.max(0, Math.min(App.WORLD_WIDTH - childWidth, spawnX));
     	spawnY = Math.max(0, Math.min(App.WORLD_HEIGHT - childHeight, spawnY));
 
-		int newId = App.getCreatedCreatures();
+		double childHp = mutate(this.getMaxHp(), 0.15, 50, 500);
+		double childAttack = mutate(this.getBaseAttack(), 0.15, 1, 25);
+		double childSpeed = mutate(this.getSpeed(), 0.10, 0.2, 3);
 
-		double childHp = 
+		Color childColor = mutateColor(this.getColor(), 0.1);
 
+		Creature newChild = new Creature(newId, spawnX, spawnY, childWidth, childHeight, childHp, childAttack, childColor, childSpeed, this.foodArray, this.creatureArray, this.backgroundGrid, this.threadSafeBackgroundGrid);
+
+		if(threadSafeBackgroundGrid.addCreature(spawnX, spawnY, childWidth, childHeight, newId)){
+			creatureArray.addCreature(newChild);
+		}else{
+			App.cancelCreatureCreation();
+		}
 	}
 
 	private double mutate(double baseValue, double mutationFactor, double min, double max){
@@ -160,10 +179,28 @@ public class Creature {
 				if(this.getHunger() >= 100){
 					threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
 					creatureArray.removeCreature(this.getId());
+					return;
 				}
 			}else{
 				this.setDirectionX(this.getDirectionX() * -1);
 				this.setDirectionY(this.getDirectionY() * -1);
+			}
+
+			long currentTime = System.currentTimeMillis();
+
+			if(currentTime - lastReproductionTime >= REPRODUCTION_COOLDOWN){
+				if(Math.random() < this.getReproductionRate()){
+					reproduct();
+					lastReproductionTime = currentTime;
+					this.setHunger(this.getHunger() + 60);
+
+					if(this.getHunger() >= 100){
+						threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+						creatureArray.removeCreature(this.getId());
+						App.removeCreature();
+						return;
+					}
+				}
 			}
 		}
 	}
@@ -174,6 +211,7 @@ public class Creature {
 		if(this.getHp() <= 0){
 			threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
 			creatureArray.removeCreature(this.getId());
+			App.removeCreature();
 
 			return true;
 		}
@@ -403,6 +441,14 @@ public class Creature {
 
 	public synchronized void setDirectionY(double directionY) {
 		this.directionY = directionY;
+	}
+
+	public synchronized double getReproductionRate() {
+		return reproductionRate;
+	}
+
+	public synchronized double getLastReproductionTime() {
+		return lastReproductionTime;
 	}
 
 	public synchronized ThreadSafeFoodArray getFoodArray() {

@@ -17,9 +17,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private static final int MAX_CREATURES = 1000;
-	private static final int INITIAL_CREATURES = 1000;
+    private static final int MAX_CREATURES = 100000;
+	private static final int INITIAL_CREATURES = 200;
     private static final int FOODSPAWNOUNT = 100;
+
+	private static int nextCreatureId = 0;
+	private static int currentCreatureCount = 0;
 
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
@@ -28,7 +31,6 @@ public class App extends Application {
 	static final double WORLD_WIDTH = 1000*WORLD_MULTIPLIYER;
     static final int UNIT_DIVISION = 1000;
 	static double WORLD_HEIGHT = 0;
-
 
     static double ZOOM = 1;
     private boolean startDrag = false;
@@ -126,8 +128,8 @@ public class App extends Application {
         ThreadSafeFoodArray threadSafeFoodArray=new ThreadSafeFoodArray(foodArray);
 		ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
 		
-		int createdCreatures = 0;
-		while(createdCreatures < INITIAL_CREATURES){
+		nextCreatureId = 0;
+		while(nextCreatureId < INITIAL_CREATURES){
 			int width = 10;
 			int height = 10;
 			double x = Math.random() * (WORLD_WIDTH - width);
@@ -135,11 +137,11 @@ public class App extends Application {
 			double hp = Math.random() * 100 + 100;
 			double baseAttack = Math.random() * 10 + 1;
 
-			Creature creature = new Creature(createdCreatures, x, y, width, height, hp, baseAttack, Color.color(Math.random(), Math.random(), Math.random()), Math.random() +0.2, threadSafeFoodArray, creaturesArray, backgroundGrid, threadSafeBackgroundGrid);
+			Creature creature = new Creature(nextCreatureId, x, y, width, height, hp, baseAttack, Color.color(Math.random(), Math.random(), Math.random()), Math.random() +0.2, threadSafeFoodArray, creaturesArray, backgroundGrid, threadSafeBackgroundGrid);
 			
-			if(threadSafeBackgroundGrid.addCreature(x, y, width, height, createdCreatures)){
-				creatures[createdCreatures] = creature;
-				createdCreatures++;
+			if(threadSafeBackgroundGrid.addCreature(x, y, width, height, nextCreatureId)){
+				creatures[nextCreatureId] = creature;
+				nextCreatureId++;
 			}
 		}
 
@@ -195,6 +197,14 @@ public class App extends Application {
         });
        
     }
+
+	public static synchronized void removeCreature(){
+		currentCreatureCount--;
+	}
+
+	public static synchronized void cancelCreatureCreation(){
+		currentCreatureCount--;
+	}
 
     public static void main(String[] args) {
         launch();

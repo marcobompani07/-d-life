@@ -40,9 +40,23 @@ public class ThreadSafeCreaturesArray {
 		return creatures[i];
 	}
 
+	public synchronized void addCreature(Creature creature){
+		this.creatures[creature.getId()] = creature;
+		notifyAll();
+	}
+
 	public synchronized void removeCreature(int i){
 		creatures[i] = null;
 		notifyAll();
 	}
 
+	public synchronized int getAvailableId(){
+		for(int i = 0; i < creatures.length; i++){
+			if(creatures[i] == null){
+				return i;
+			}
+		}
+
+		return -1;
+	}
 }
