@@ -188,7 +188,7 @@ public class Creature {
 
 			long currentTime = System.currentTimeMillis();
 
-			if(currentTime - lastReproductionTime >= REPRODUCTION_COOLDOWN){
+			if(currentTime - lastReproductionTime >= REPRODUCTION_COOLDOWN &&this.getHunger()<20){
 				if(Math.random() < this.getReproductionRate()){
 					reproduct();
 					lastReproductionTime = currentTime;

@@ -17,7 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private static final int MAX_CREATURES = 100000;
+    private static final int MAX_CREATURES = 1000;
 	private static final int INITIAL_CREATURES = 200;
     private static final int FOODSPAWNOUNT = 100;
 
