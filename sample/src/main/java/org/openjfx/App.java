@@ -23,7 +23,7 @@ public class App extends Application {
 
 	private static int nextCreatureId = 0;
 	private static int currentCreatureCount = INITIAL_CREATURES;
-    public static boolean mutationsEnabled=false;
+    public static double MutationRate=1;
 
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;

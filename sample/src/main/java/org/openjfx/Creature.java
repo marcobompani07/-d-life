@@ -90,19 +90,10 @@ public class Creature {
 		double childAttack;
 		double childSpeed;
 		Color childColor;
-		if(App.mutationsEnabled){
-			childHp= mutate(this.getMaxHp(), 0.15, 50, 500);
-			childAttack= mutate(this.getBaseAttack(), 0.15, 1, 25);
-			childSpeed = mutate(this.getSpeed(), 0.10, 0.2, 3);
-
-			childColor = mutateColor(this.getColor(), 0.02);
-		}else{
-			childHp=this.getMaxHp();
-			childAttack=this.getBaseAttack();
-			childSpeed=this.getSpeed();
-
-			childColor=this.getColor();
-		}
+		childHp= mutate(this.getMaxHp(), 0.15*App.MutationRate, 50, 500);
+		childAttack= mutate(this.getBaseAttack(), 0.15*App.MutationRate, 1, 25);
+		childSpeed = mutate(this.getSpeed(), 0.10*App.MutationRate, 0.2, 3);
+		childColor = mutateColor(this.getColor(), 0.02*App.MutationRate);
 
 		Creature newChild = new Creature(newId, spawnX, spawnY, childWidth, childHeight, childHp, childAttack, childColor, childSpeed, this.foodArray, this.creatureArray, this.backgroundGrid, this.threadSafeBackgroundGrid);
 
