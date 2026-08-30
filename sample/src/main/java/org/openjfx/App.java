@@ -17,12 +17,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class App extends Application {
-    private static final int MAX_CREATURES = 1000;
-	private static final int INITIAL_CREATURES = 200;
+    private static final int MAX_CREATURES = 10000;
+	private static final int INITIAL_CREATURES = 3;
     private static final int FOODSPAWNOUNT = 100;
 
 	private static int nextCreatureId = 0;
-	private static int currentCreatureCount = 0;
+	private static int currentCreatureCount = INITIAL_CREATURES;
+    public static boolean mutationsEnabled=false;
 
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
@@ -96,7 +97,9 @@ public class App extends Application {
             mapGrapychHandler.addOffsetX(offsetX);
             mapGrapychHandler.addOffsetY(offsetY);
         });
-        HBox topBar = new HBox(10*standardUnit, zoomSpinner,zoomButton);
+        Label creatureCounterLabel=new Label();
+        creatureCounterLabel.setTextFill(Color.web("#ffffff"));
+        HBox topBar = new HBox(10*standardUnit, zoomSpinner,zoomButton,creatureCounterLabel);
         topBar.setStyle("-fx-padding: "+(10*standardUnit)+"px;-fx-background-color: #494848;");
         topBar.setSpacing(15*standardUnit);
         root.setTop(topBar);
@@ -144,15 +147,26 @@ public class App extends Application {
 				nextCreatureId++;
 			}
 		}
-
+        Runnable updateCreatureCountDisplay=new Runnable() {
+            @Override
+            public void run(){
+                creatureCounterLabel.setText("creature count : "+currentCreatureCount);
+            }
+        };
+        Runnable ResetCreatureDisplayRunnable=new Runnable(){
+            @Override
+            public  void run(){
+                creatureColorShowPane.setStyle("");
+                dispayCreatureLabel.setText("");
+            }
+        };
         UpdateCreatureDisplayRunnableGenerator updateCreatureDisplayRunnableGenerator=new UpdateCreatureDisplayRunnableGenerator(dispayCreatureLabel,creatureColorShowPane);
-        CreatureInfoDisplayThread creatureInfoDisplayThread=new CreatureInfoDisplayThread(updateCreatureDisplayRunnableGenerator, creaturesArray);
+        CreatureInfoDisplayThread creatureInfoDisplayThread=new CreatureInfoDisplayThread(updateCreatureDisplayRunnableGenerator, creaturesArray,updateCreatureCountDisplay,ResetCreatureDisplayRunnable);
         FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,App.FOODSPAWNOUNT);
 		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
         UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
         MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
         ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
-		mapGrapychHandler.focusCreature(-1);
 		workers = new CreatureWorker[WORKER_COUNT];
         creatureInfoDisplayThread.setCreatureId(-1);
 		for (int i = 0; i < WORKER_COUNT; i++) {
@@ -175,7 +189,7 @@ public class App extends Application {
                 }
             }
             
-            mapGrapychHandler.focusCreature(index);
+            MapGraphicsHandler.focusedCreatureId=index;
             creatureInfoDisplayThread.setCreatureId(index);
             creatureColorShowPane.setStyle("");
             dispayCreatureLabel.setText("");
@@ -198,13 +212,24 @@ public class App extends Application {
        
     }
 
-	public static synchronized void removeCreature(){
+	public static synchronized void removeCreature(int id){
 		currentCreatureCount--;
+        if(MapGraphicsHandler.focusedCreatureId==id){
+            MapGraphicsHandler.focusedCreatureId=-1;
+            CreatureInfoDisplayThread.creatureId=-1;
+            System.out.println("unfocussed:"+MapGraphicsHandler.focusedCreatureId);
+            
+        }
 	}
 
 	public static synchronized void cancelCreatureCreation(){
 		currentCreatureCount--;
 	}
+
+    public static synchronized void addCreature(){
+        currentCreatureCount++;
+    }
+
 
     public static void main(String[] args) {
         launch();

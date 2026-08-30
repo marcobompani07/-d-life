@@ -6,20 +6,26 @@ import javafx.scene.paint.Color;
 public class CreatureInfoDisplayThread extends Thread {
     private  boolean stop;
     private UpdateCreatureDisplayRunnableGenerator RunnableGenerator;
-    private int creatureId;
+    private Runnable updateCreatureCountDisplay,ResetCreatureDisplayRunnable;
+    static  int creatureId;
     private ThreadSafeCreaturesArray creaturesArray;
+    private boolean resetted;
 
-    public CreatureInfoDisplayThread(UpdateCreatureDisplayRunnableGenerator RunnableGenerator,ThreadSafeCreaturesArray creaturesArray) {
+    public CreatureInfoDisplayThread(UpdateCreatureDisplayRunnableGenerator RunnableGenerator,ThreadSafeCreaturesArray creaturesArray,Runnable updateCreatureCountDisplay,Runnable ResetCreatureDisplayRunnable) {
         stop=false;
         this.RunnableGenerator=RunnableGenerator;
         creatureId=-1;
         this.creaturesArray=creaturesArray;
+        this.updateCreatureCountDisplay=updateCreatureCountDisplay;
+        this.ResetCreatureDisplayRunnable=ResetCreatureDisplayRunnable;
+        resetted=false;
     }
     @Override
     public void run(){
         while (!stop) {
             try {
                 if(creatureId>-1){
+                    resetted=false;
                     Creature creature=creaturesArray.request(creatureId);
                     if (creature!=null){
                         Color color=creature.getColor();
@@ -34,7 +40,11 @@ public class CreatureInfoDisplayThread extends Thread {
                     }else{
                         creaturesArray.release(creatureId);
                     }
+                }else if(!resetted){
+                    Platform.runLater(ResetCreatureDisplayRunnable);
+                    resetted=true;
                 }
+                Platform.runLater(updateCreatureCountDisplay);
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();

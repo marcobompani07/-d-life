@@ -81,19 +81,37 @@ public class Creature {
 		spawnX = Math.max(0, Math.min(App.WORLD_WIDTH - childWidth, spawnX));
     	spawnY = Math.max(0, Math.min(App.WORLD_HEIGHT - childHeight, spawnY));
 
-		double childHp = mutate(this.getMaxHp(), 0.15, 50, 500);
+		/*double childHp = mutate(this.getMaxHp(), 0.15, 50, 500);
 		double childAttack = mutate(this.getBaseAttack(), 0.15, 1, 25);
 		double childSpeed = mutate(this.getSpeed(), 0.10, 0.2, 3);
 
-		Color childColor = mutateColor(this.getColor(), 0.1);
+		Color childColor = mutateColor(this.getColor(), 0.02);*/
+		double childHp;
+		double childAttack;
+		double childSpeed;
+		Color childColor;
+		if(App.mutationsEnabled){
+			childHp= mutate(this.getMaxHp(), 0.15, 50, 500);
+			childAttack= mutate(this.getBaseAttack(), 0.15, 1, 25);
+			childSpeed = mutate(this.getSpeed(), 0.10, 0.2, 3);
+
+			childColor = mutateColor(this.getColor(), 0.02);
+		}else{
+			childHp=this.getMaxHp();
+			childAttack=this.getBaseAttack();
+			childSpeed=this.getSpeed();
+
+			childColor=this.getColor();
+		}
 
 		Creature newChild = new Creature(newId, spawnX, spawnY, childWidth, childHeight, childHp, childAttack, childColor, childSpeed, this.foodArray, this.creatureArray, this.backgroundGrid, this.threadSafeBackgroundGrid);
 
 		if(threadSafeBackgroundGrid.addCreature(spawnX, spawnY, childWidth, childHeight, newId)){
 			creatureArray.addCreature(newChild);
-		}else{
+			App.addCreature();
+		}/*else{
 			App.cancelCreatureCreation();
-		}
+		}*/
 	}
 
 	private double mutate(double baseValue, double mutationFactor, double min, double max){
@@ -179,6 +197,7 @@ public class Creature {
 				if(this.getHunger() >= 100){
 					threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
 					creatureArray.removeCreature(this.getId());
+					App.removeCreature(this.getId());
 					return;
 				}
 			}else{
@@ -197,7 +216,7 @@ public class Creature {
 					if(this.getHunger() >= 100){
 						threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
 						creatureArray.removeCreature(this.getId());
-						App.removeCreature();
+						App.removeCreature(this.getId());
 						return;
 					}
 				}
@@ -211,7 +230,7 @@ public class Creature {
 		if(this.getHp() <= 0){
 			threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
 			creatureArray.removeCreature(this.getId());
-			App.removeCreature();
+			App.removeCreature(this.getId());
 
 			return true;
 		}

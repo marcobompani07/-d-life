@@ -11,7 +11,7 @@ public class MapGraphicsHandler {
     private  double canvasHeight;
     private double  offsetX;
     private double  offsetY;
-    private int focusedCreatureId;
+    static int focusedCreatureId;
 
 	private Image backgroundImage;
 	private static final double BACKGROUND_TILE_SIZE = 1024;
@@ -24,7 +24,7 @@ public class MapGraphicsHandler {
         this.canvasHeight = canvasHeight;
         offsetX=0;
         offsetY=0;
-        focusedCreatureId=-1;
+        MapGraphicsHandler.focusedCreatureId=-1;
 
 		backgroundImage = new Image(getClass().getResource("/img/terrain.jpg").toExternalForm());
     }
@@ -38,7 +38,7 @@ public class MapGraphicsHandler {
         for (int i=0;i<creatures.length;i++) {
             Creature creature=creatures[i];
             if(creature!=null){
-                if(focusedCreatureId==i){
+                if(MapGraphicsHandler.focusedCreatureId==i){
                     setOffsetX(((-(creature.getX()+creature.getWidth()/2)*standardUnit*App.ZOOM)+canvasWidth/2));
                     setOffsetY(((-(creature.getY()+creature.getHeight()/2)*standardUnit*App.ZOOM)+canvasHeight/2));
                 }
@@ -143,7 +143,4 @@ public class MapGraphicsHandler {
     }
 
 
-    public void focusCreature(int id){
-        this.focusedCreatureId=id;
-    }
 }
