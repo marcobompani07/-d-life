@@ -6,6 +6,7 @@ public class CreatureBrain {
     public static final int MOVE_TO_CREATURE = 2;
     public static final int ATTACK = 3;
     public static final int EAT = 4;
+	public static final int FLEE = 5;
 	public static final int REPRODUCE = 6;
 
 	private Creature creatureTarget;
@@ -19,36 +20,42 @@ public class CreatureBrain {
 		double closestFoodDistance = (double) closestFoodData[1];
 
 		Creature closestCreature = (Creature) closestCreatureData[0];
-		double closestCreatureDistance = (double) closestCreatureData[1];
 
-		if (creatureTarget != null) {
-			double distanceX = creatureTarget.getX() - creatureX;
-			double distanceY = creatureTarget.getY() - creatureY;
+		if (creatureTarget != null && creatureTarget.getHp() <= 0) {
+            creatureTarget = null;
+        }
 
-			double targetDistance = creatureTarget.getDistanceToCreature(callingCreature);
-
-			if (targetDistance > view * 10 || creatureTarget.getHp() <= 0) {
+		if (creatureTarget == null && closestCreature != null && closestCreature.getHp() > 0) {
+			creatureTarget = closestCreature;
+		}
+		
+		if(creatureTarget != null){
+			double targetDistance = callingCreature.getDistanceToCreature(creatureTarget);
+			if(targetDistance > view * 10 || creatureTarget.getHp() <= 0){
 				creatureTarget = null;
 			}
-		}
-
-		if (creatureTarget == null && closestCreature != null) {
-			creatureTarget = closestCreature;
 		}
 
 		if(closestFood != null && closestFoodDistance <= Food.FOOD_WIDTH / 2){
 			return EAT;
 		}
 
-		if (closestFood != null && (hunger >= 40 || creatureTarget == null || hp <= (maxHp - ((maxHp * 60) / 100)))){
+		boolean isLowHp = hp <= (maxHp - ((maxHp * 60) / 100));
+		boolean isTooHungry = hunger >= 75.0;
+
+		if(isLowHp || isTooHungry){
+			if(closestFood != null){
+				return MOVE_TO_FOOD;
+			} else if (creatureTarget != null && creatureTarget.getHp() > 0){
+				return FLEE;
+			}
+		}
+
+		if (closestFood != null && (hunger >= 40 || creatureTarget == null)){
 			return MOVE_TO_FOOD;
 		}
 
-		if(creatureTarget != null && hp <= (hp - ((hp * 60) / 100))){
-			return RANDOM_MOVEMENT;
-		}
-
-		if(creatureTarget != null){
+		if(creatureTarget != null && creatureTarget.getHp() > 0){
 			double targetDistance = callingCreature.getDistanceToCreature(creatureTarget);
 
 			if(targetDistance <= attackRange * 10){

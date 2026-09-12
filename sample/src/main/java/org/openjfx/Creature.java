@@ -15,6 +15,7 @@ public class Creature {
 	private double speed;
 	private double hunger;
 	private double hp;
+	private double hpRegenPercentage = 0.15;
 	private double maxHp;
 	private double baseAttack;
 	private int view;
@@ -316,24 +317,64 @@ public class Creature {
 					break;
 
 				case CreatureBrain.ATTACK:
-					if(target == null) target = closestCreature;
+					if(target == null || target.getHp() <= 0  || target.getHunger() >= 100){
+						this.brain.setCreatureTarget(null);
+						break;
+					}
 
-					if(target != null){
-						long currentTime = System.currentTimeMillis();
+					long currentTime = System.currentTimeMillis();
 
-						if(currentTime - lastAttackTime >= ATTACK_COOLDOWN){
-							target.takeDamage(weightedAttack);
-							lastAttackTime = currentTime;
+					if(currentTime - lastAttackTime >= ATTACK_COOLDOWN){
+						target.takeDamage(weightedAttack);
+						lastAttackTime = currentTime;
 
-							this.setHunger(this.getHunger() + this.getBaseAttack() * 2);
+						this.setHunger(this.getHunger() + this.getBaseAttack() * 2);
 
-							if(this.getHunger() >= 100){
-								threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
-								creatureArray.removeCreature(this.getId());
-								App.removeCreature(this.getId());
-								return;
+						if(target == null || target.getHp() <= 0 || target.getHunger() >= 100){
+							this.brain.setCreatureTarget(null);
+						}
+
+						if(this.getHunger() >= 100){
+							threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+							creatureArray.removeCreature(this.getId());
+							App.removeCreature(this.getId());
+							return;
+						}
+					}
+
+					break;
+
+				case CreatureBrain.FLEE:
+					if(target != null && target.getHp() > 0){
+						double fleeX = this.getX() - target.getX();
+						double fleeY = this.getY() - target.getY();
+						double distance = Math.sqrt(fleeX * fleeX + fleeY * fleeY);
+
+						if(distance > 0){
+							newDirectionX = fleeX / distance;
+							newDirectionY = fleeY / distance;
+
+							this.setDirectionX(newDirectionX);
+							this.setDirectionY(newDirectionY);
+
+							newX = this.getX() + newDirectionX * weightedSpeed;
+							newY = this.getY() + newDirectionY * weightedSpeed;
+							newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
+							newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.getHeight(), newY));
+
+							if (move(newX, newY)) {
+								this.setHunger(this.getHunger() + this.getSpeed() / 100);
+							} else {
+								this.setDirectionX(-newDirectionY);
+								this.setDirectionY(newDirectionX);
 							}
 						}
+					}else {
+						newX = this.getX() + this.getDirectionX() * weightedSpeed;
+						newY = this.getY() + this.getDirectionY() * weightedSpeed;
+						newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
+						newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.getHeight(), newY));
+						move(newX, newY);
 					}
 
 					break;
@@ -371,6 +412,11 @@ public class Creature {
 					}
 					break;
 			}
+		}else{
+			threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+			creatureArray.removeCreature(this.getId());
+			App.removeCreature(this.getId());
+			return;
 		}
 	}
 
@@ -493,6 +539,9 @@ public class Creature {
 				this.setHunger(0);
 			}
 
+			double healAmount = this.getMaxHp() * this.getHpRegenPercentage();
+			this.setHp(Math.min(this.getMaxHp(), this.getHp() + healAmount));
+
 			int foodGridX = (int) (foodX / 10);
 			int foodGridY = (int) (foodY / 10);
 
@@ -596,6 +645,10 @@ public class Creature {
 
 	public synchronized double getMaxHp(){
 		return maxHp;
+	}
+
+	public synchronized double getHpRegenPercentage(){
+		return hpRegenPercentage;
 	}
 
 	public synchronized void setHp(double hp){

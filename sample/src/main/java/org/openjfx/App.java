@@ -18,8 +18,8 @@ import javafx.stage.Stage;
 
 public class App extends Application {
     private static final int MAX_CREATURES = 10000;
-	private static final int INITIAL_CREATURES = 40;
-    private static final int FOODSPAWNOUNT = 2;
+	private static final int INITIAL_CREATURES = 400;
+    private static final int FOODSPAWNOUNT = 100;
 
 	private static int nextCreatureId = 0;
 	private static int currentCreatureCount = INITIAL_CREATURES;
@@ -28,7 +28,7 @@ public class App extends Application {
 	private static final int WORKER_COUNT = Runtime.getRuntime().availableProcessors()-2;
 	private CreatureWorker[] workers;
 
-    static final double WORLD_MULTIPLIYER = 1;
+    static final double WORLD_MULTIPLIYER = 5;
 	static final double WORLD_WIDTH = 1000*WORLD_MULTIPLIYER;
     static final int UNIT_DIVISION = 1000;
 	static double WORLD_HEIGHT = 0;
