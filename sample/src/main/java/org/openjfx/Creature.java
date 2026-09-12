@@ -23,6 +23,7 @@ public class Creature {
 	private long lastAttackTime = 0;
 	private static final long ATTACK_COOLDOWN = 500;
 	private double reproductionRate;
+	private double reproductionProbability;
 	private long lastReproductionTime = 0;
 	private static final long REPRODUCTION_COOLDOWN = 10000;
 	private ThreadSafeFoodArray foodArray;
@@ -46,6 +47,7 @@ public class Creature {
 		this.view = 5;
 		this.attackRange = 1;
 		this.reproductionRate = 0.1;
+		this.reproductionProbability = 0.2;
 		this.foodArray = foodArray;
 		this.creatureArray = creaturesArray;
 		this.backgroundGrid = backgroundGrid;
@@ -411,6 +413,14 @@ public class Creature {
 						this.setDirectionY(this.getDirectionY() * -1);
 					}
 					break;
+
+				case CreatureBrain.REPRODUCE:
+					this.setHunger(this.getHunger() + 50);
+					this.setHp(this.getHp() / 2);
+
+					reproduct();
+					this.brain.setCreatureTarget(null);
+					break;
 			}
 		}else{
 			threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
@@ -701,5 +711,9 @@ public class Creature {
 
 	public synchronized ThreadSafeBackgroundGrid getThreadSafeBackgroundGrid() {
 		return threadSafeBackgroundGrid;
+	}
+
+	public synchronized double getReproductionProbability(){
+		return reproductionProbability;
 	}
 }

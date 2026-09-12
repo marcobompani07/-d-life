@@ -18,7 +18,6 @@ public class CreatureBrain {
 	public int think(Object[] closestFoodData, Object[] closestCreatureData, double creatureX, double creatureY, int view, int attackRange, double hunger, double hp, double maxHp, Creature callingCreature) {
 		Food closestFood = (Food) closestFoodData[0];
 		double closestFoodDistance = (double) closestFoodData[1];
-
 		Creature closestCreature = (Creature) closestCreatureData[0];
 
 		if (creatureTarget != null && creatureTarget.getHp() <= 0) {
@@ -40,7 +39,7 @@ public class CreatureBrain {
 			return EAT;
 		}
 
-		boolean isLowHp = hp <= (maxHp - ((maxHp * 60) / 100));
+		boolean isLowHp = hp <= (maxHp * 0.60);
 		boolean isTooHungry = hunger >= 75.0;
 
 		if(isLowHp || isTooHungry){
@@ -53,6 +52,20 @@ public class CreatureBrain {
 
 		if (closestFood != null && (hunger >= 40 || creatureTarget == null)){
 			return MOVE_TO_FOOD;
+		}
+
+		boolean canReproduce = (hunger < 30.0) && (hp >= maxHp * 0.80) && (Math.random() <= callingCreature.getReproductionProbability());
+		if(canReproduce) {
+			if(creatureTarget == null){
+				return REPRODUCE;
+			}
+
+			double targetDistance = callingCreature.getDistanceToCreature(creatureTarget);
+			if(targetDistance <= (attackRange * 10)){
+				return REPRODUCE;
+			} else {
+				return MOVE_TO_CREATURE;
+			}
 		}
 
 		if(creatureTarget != null && creatureTarget.getHp() > 0){
