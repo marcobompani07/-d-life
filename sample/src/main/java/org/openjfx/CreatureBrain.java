@@ -1,130 +1,71 @@
 package org.openjfx;
 
 public class CreatureBrain {
+	public static final int RANDOM_MOVEMENT = 0;
+    public static final int MOVE_TO_FOOD = 1;
+    public static final int MOVE_TO_CREATURE = 2;
+    public static final int ATTACK = 3;
+    public static final int EAT = 4;
+	public static final int REPRODUCE = 6;
 
-    private double  eatProbability;
-    private Creature CreatureTarget;
-    private Food foodTarget;
-    private double movmentTargetX;
-    private double movmentTargetY;
-    private boolean randomMoovmentTargetSet;
-    private ThreadSafeFoodArray generaFloodArray;
-    private ThreadSafeCreaturesArray generalCreaturesArray;
-    private double riproductionPercentage;
-    private boolean targeted,eatFood;
+	private Creature creatureTarget;
 
-    public CreatureBrain(double  eatProbability,double creatureX, double creatureY,ThreadSafeFoodArray generaFloodArray,ThreadSafeCreaturesArray generalCreaturesArray,double riproductionPercentage) {
-        this.eatProbability = eatProbability;
-        foodTarget=null;
-        CreatureTarget=null;
-        movmentTargetX=creatureX;
-        movmentTargetY=creatureY;
-        this.generaFloodArray=generaFloodArray;
-        this.generalCreaturesArray=generalCreaturesArray;
-        this.riproductionPercentage=riproductionPercentage;
-        this.targeted=false;
-    }
-    
-    
-    public MovmentTargetOutput tink(Food foodArray[],Creature[] creatureArray,double creatureX, double creatureY){
-        if (!targeted){
-            eatFood=Math.random()<eatProbability;
-        }
-        if(eatFood){
-            foodTarget=analizeFood(foodArray, creatureX, creatureY);
-            if(foodTarget!=null){
-                randomMoovmentTargetSet=false;
-                movmentTargetX=foodTarget.getX();
-                movmentTargetY=foodTarget.getY();
-            }else{
-                if(!randomMoovmentTargetSet){
-                    randomMoovmentTargetSet=true;
-                    targeted=false;
-                    movmentTargetX=Math.random()*App.WORLD_WIDTH/8+1+creatureX-Math.random()*App.WORLD_WIDTH/4;
-                    movmentTargetY=Math.random()*App.WORLD_HEIGHT/8+1+creatureY-Math.random()*App.WORLD_HEIGHT/4;
-                }
-            }
-        }else{
-            CreatureTarget=analizeCreatures(creatureArray, creatureX, creatureY);
-            if(CreatureTarget!=null){
-                randomMoovmentTargetSet=false;
-                movmentTargetX=CreatureTarget.getX();
-                movmentTargetY=CreatureTarget.getY();
-            }else{
-                if(!randomMoovmentTargetSet){
-                    randomMoovmentTargetSet=true;
-                    targeted=false;
-                    movmentTargetX=Math.random()*App.WORLD_WIDTH/8+1+creatureX-Math.random()*App.WORLD_WIDTH/4;
-                    movmentTargetY=Math.random()*App.WORLD_HEIGHT/8+1+creatureY-Math.random()*App.WORLD_HEIGHT/4;
-                }
-            }
-        }
-        return new MovmentTargetOutput(movmentTargetX,movmentTargetX);
-    }
+	public CreatureBrain() {
+		this.creatureTarget = null;
+	}
 
-    public boolean tryRiproduction(){
-        return Math.random()<riproductionPercentage;
-    }
-    private Food analizeFood(Food foodArray[],double creatureX,double creatureY){
-        double minDistance;
-        Food cFood=null;
-        try {
-            cFood=generaFloodArray.request(foodTarget.getId());
-        } catch (InterruptedException e) {
-        }
-        if(foodTarget!=null&&cFood==null){
-            foodTarget=null;
-        }
-        if(foodTarget==null){
-            minDistance=Double.MAX_VALUE;
-        }else{
-            minDistance=getDistance(creatureX, creatureY, (double)foodTarget.getX(), (double)foodTarget.getY());
-        }
-        Food minFood=foodTarget;
-        for(int i=0;i<foodArray.length;i++){
-                double foodDistance=getDistance(creatureX, creatureY, (double)foodArray[i].getX(), (double)foodArray[i].getY());
-                if(foodDistance<minDistance){
-                    minDistance=foodDistance;
-                    minFood=foodArray[i];
-                }
-        }
-        return minFood;
-    }
-    private Creature analizeCreatures(Creature creatureArray[],double creatureX,double creatureY){
-        Creature minCreature=null;
-        if(CreatureTarget!=null){
-            if(!contains(creatureArray, CreatureTarget)){
-                CreatureTarget=null;
-                return null;
-            }else{
-                minCreature=CreatureTarget;
-            }
-        }else{
-            double minDistance=Double.MAX_VALUE;
-             for(int i=0;i<creatureArray.length;i++){
-                double creatureDistance=getDistance(creatureX, creatureY, (double)creatureArray[i].getX(), (double)creatureArray[i].getY());
-                if(creatureDistance<minDistance){
-                    minDistance=creatureDistance;
-                    minCreature=creatureArray[i];
-                }
-        }
-        }
-        return minCreature;
-    }
+	public int think(Object[] closestFoodData, Object[] closestCreatureData, double creatureX, double creatureY, int view, int attackRange, double hunger, double hp, double maxHp, Creature callingCreature) {
+		Food closestFood = (Food) closestFoodData[0];
+		double closestFoodDistance = (double) closestFoodData[1];
 
-    private boolean  contains(Creature creatureArray[],Creature creatureToFind){
-        for(int i=0;i<creatureArray.length;i++){
-            if(creatureArray[i].getId()==creatureToFind.getId()){
-                return true;
-            }
-        }
-        return false;
-    }
+		Creature closestCreature = (Creature) closestCreatureData[0];
+		double closestCreatureDistance = (double) closestCreatureData[1];
 
+		if (creatureTarget != null) {
+			double distanceX = creatureTarget.getX() - creatureX;
+			double distanceY = creatureTarget.getY() - creatureY;
 
-    private double getDistance(double creatureX,double creatureY,double targetX,double targetY){
-        double calcx=targetX - creatureX;
-        double calcy=targetY - creatureY;
-        return Math.sqrt(calcx*calcx +calcy*calcy);
-    }
+			double targetDistance = creatureTarget.getDistanceToCreature(callingCreature);
+
+			if (targetDistance > view * 10 || creatureTarget.getHp() <= 0) {
+				creatureTarget = null;
+			}
+		}
+
+		if (creatureTarget == null && closestCreature != null) {
+			creatureTarget = closestCreature;
+		}
+
+		if(closestFood != null && closestFoodDistance <= Food.FOOD_WIDTH / 2){
+			return EAT;
+		}
+
+		if (closestFood != null && (hunger >= 40 || creatureTarget == null || hp <= (maxHp - ((maxHp * 60) / 100)))){
+			return MOVE_TO_FOOD;
+		}
+
+		if(creatureTarget != null && hp <= (hp - ((hp * 60) / 100))){
+			return RANDOM_MOVEMENT;
+		}
+
+		if(creatureTarget != null){
+			double targetDistance = callingCreature.getDistanceToCreature(creatureTarget);
+
+			if(targetDistance <= attackRange * 10){
+				return ATTACK;
+			}
+
+			return MOVE_TO_CREATURE;
+		}
+		
+		return RANDOM_MOVEMENT;
+	}
+
+	public Creature getCreatureTarget() {
+		return this.creatureTarget;
+	}
+
+	public void setCreatureTarget(Creature creatureTarget){
+		this.creatureTarget = creatureTarget;
+	}
 }

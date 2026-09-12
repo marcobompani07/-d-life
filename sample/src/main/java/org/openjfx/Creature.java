@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 
 public class Creature {
 	private int id;
+	private CreatureBrain brain;
 	private double x;
 	private double y;
 	private double directionX;
@@ -30,6 +31,7 @@ public class Creature {
 
 	public Creature(int id, double x, double y, double width, double height, double hp, double baseAttack, Color color, double speed, ThreadSafeFoodArray foodArray, ThreadSafeCreaturesArray creaturesArray, BackgroundGridElement[][] backgroundGrid, ThreadSafeBackgroundGrid threadSafeBackgroundGrid) {
 		this.id = id;
+		this.brain = new CreatureBrain();
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -119,7 +121,7 @@ public class Creature {
 		return Color.color(r, g, b);
 	}
 
-	public void update() throws InterruptedException{
+	public void updateOld() throws InterruptedException{
 
 		if(this.getHunger() < 100 && this.getHp() > 0){
 			double weightedSpeed = this.getSpeed();
@@ -215,6 +217,164 @@ public class Creature {
 		}
 	}
 
+	public void update() throws InterruptedException{
+
+		if(this.getHunger() < 100 && this.getHp() > 0){
+			double weightedSpeed = this.getSpeed();
+			double weightedAttack = this.getBaseAttack();
+
+			if(this.getHunger() >= 60){
+				double hungerEffect = (this.getHunger() - 60) / 40;
+				weightedSpeed = this.getSpeed() * (1 - hungerEffect);
+				weightedAttack = this.getBaseAttack() * (1 - hungerEffect);
+			}
+
+			Object [] closestFoodData = findClosestFood();
+			Food closestFood = (Food) closestFoodData[0];
+			double closestFoodDistance = (double) closestFoodData[1];
+
+			Object[] closestCreatureData = findClosestCreature();
+			Creature closestCreature = (Creature) closestCreatureData[0];
+			double closestCreatureDistance = (double) closestCreatureData[1];
+
+			int action = this.brain.think(closestFoodData, closestCreatureData, this.getX(), this.getY(), this.getView(), this.getAttackRange(), this.getHunger(), this.getHp(), this.getMaxHp(), this);
+			double newX, newY, newDirectionX, newDirectionY;
+			Creature target = this.brain.getCreatureTarget();
+
+			switch (action){
+				case CreatureBrain.EAT:
+					if(closestFood != null){
+						eatFood(closestFood, closestFood.getId(), this.getX(), this.getY());
+					}
+
+					break;
+				
+				case CreatureBrain.MOVE_TO_FOOD:
+					if (closestFood == null || closestFoodDistance <= 0) break;
+
+					newDirectionX = (closestFood.getX() - this.getX()) / closestFoodDistance;
+					newDirectionY = (closestFood.getY() - this.getY()) / closestFoodDistance;
+
+					newX = this.getX() + newDirectionX * weightedSpeed;
+					newY = this.getY() + newDirectionY * weightedSpeed;	
+					newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
+					newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.getHeight(), newY));
+
+					if(closestFood != null){
+						eatFood(closestFood, closestFood.getId(), newX, newY);
+					}
+
+					if(move(newX, newY)){
+						this.setHunger(this.getHunger() + this.getSpeed() / 100);
+
+						if(this.getHunger() >= 100){
+							threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+							creatureArray.removeCreature(this.getId());
+							App.removeCreature(this.getId());
+							return;
+						}
+					}else{
+						this.setDirectionX(this.getDirectionX() * -1);
+						this.setDirectionY(this.getDirectionY() * -1);
+					}
+
+					break;
+
+				case CreatureBrain.MOVE_TO_CREATURE:
+					if (target == null) break;
+
+					double targetDistanceX = target.getX() - this.getX();
+
+					double targetDistanceY = target.getY() - this.getY();
+
+					double targetDistance = Math.sqrt(targetDistanceX * targetDistanceX + targetDistanceY * targetDistanceY);
+
+					if (targetDistance <= 0) break;
+
+					newDirectionX = targetDistanceX / targetDistance;
+					newDirectionY = targetDistanceY / targetDistance;
+
+					newX = this.getX() + newDirectionX * weightedSpeed;
+					newY = this.getY() + newDirectionY * weightedSpeed;	
+					newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
+					newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.getHeight(), newY));
+
+					if(move(newX, newY)){
+						this.setHunger(this.getHunger() + this.getSpeed() / 100);
+
+						if(this.getHunger() >= 100){
+							threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+							creatureArray.removeCreature(this.getId());
+							App.removeCreature(this.getId());
+							return;
+						}
+					}else{
+						this.setDirectionX(this.getDirectionX() * -1);
+						this.setDirectionY(this.getDirectionY() * -1);
+					}
+
+					break;
+
+				case CreatureBrain.ATTACK:
+					if(target == null) target = closestCreature;
+
+					if(target != null){
+						long currentTime = System.currentTimeMillis();
+
+						if(currentTime - lastAttackTime >= ATTACK_COOLDOWN){
+							target.takeDamage(weightedAttack);
+							lastAttackTime = currentTime;
+
+							this.setHunger(this.getHunger() + this.getBaseAttack() * 2);
+
+							if(this.getHunger() >= 100){
+								threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+								creatureArray.removeCreature(this.getId());
+								App.removeCreature(this.getId());
+								return;
+							}
+						}
+					}
+
+					break;
+
+				case CreatureBrain.RANDOM_MOVEMENT:
+					if(Math.random() < 0.01){
+						double angle = Math.random() * 2 * Math.PI;
+						this.setDirectionX(Math.cos(angle));
+						this.setDirectionY(Math.sin(angle));
+					}
+
+					newX = this.getX() + this.getDirectionX() * weightedSpeed;
+					newY = this.getY() + this.getDirectionY() * weightedSpeed;
+
+					if(newX <= 0 || newX >= App.WORLD_WIDTH - this.getWidth()){
+						this.setDirectionX(this.getDirectionX() * -1);
+					}
+
+					if(newY <= 0 || newY >= App.WORLD_HEIGHT - this.getHeight()){
+						this.setDirectionY(this.getDirectionY() * -1);
+					}
+
+					if(move(newX, newY)){
+						this.setHunger(this.getHunger() + this.getSpeed() / 100);
+
+						if(this.getHunger() >= 100){
+							threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
+							creatureArray.removeCreature(this.getId());
+							App.removeCreature(this.getId());
+							return;
+						}
+					}else{
+						this.setDirectionX(this.getDirectionX() * -1);
+						this.setDirectionY(this.getDirectionY() * -1);
+					}
+					break;
+			}
+		}
+	}
+
+
 	public synchronized boolean takeDamage(double damage){
 		this.setHp(this.getHp() - damage);
 
@@ -250,7 +410,11 @@ public class Creature {
 						Food food = foodArray.request(foodId);
 
 						if(food != null){
-							double distance = Math.sqrt(Math.pow(food.getX() - this.getX(), 2) + Math.pow(food.getY() - this.getY(), 2));
+							double creatureClosestX = Math.max(this.getX(), Math.min(food.getX(), this.getX() + this.getWidth()));
+							double creatureClosestY = Math.max(this.getY(), Math.min(food.getY(), this.getY() + this.getHeight()));
+
+							double distance = Math.sqrt(Math.pow(food.getX() - creatureClosestX, 2) + Math.pow(food.getY() - creatureClosestY, 2));
+
 							if(distance < closestDistance){
 								closestDistance = distance;
 								closestFood = food;
@@ -276,7 +440,7 @@ public class Creature {
 		int startY = (int) Math.max(0, Math.min(this.getY() / 10, backgroundGrid[0].length - 1));
 		int endY = (int) Math.max(0, Math.min(((this.getY() + this.getHeight()) / 10) - 1, backgroundGrid[0].length - 1));
 
-		int range = this.getAttackRange();
+		int range = this.getView();
 
 		for (int x = startX - range; x <= endX + range; x++) {
 
@@ -296,7 +460,7 @@ public class Creature {
 
 							double distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
 							
-							if(distance < closestDistance && distance <= this.getAttackRange() * 10){
+							if(distance < closestDistance && distance <= this.getView() * 10){
 								closestDistance = distance;
 								closestCreature = creature;
 							}
@@ -347,6 +511,15 @@ public class Creature {
 		}
 
 		return moved;
+	}
+
+	public double getDistanceToCreature(Creature creature) {
+
+		double distanceX = Math.max(0, Math.max(this.getX() - (creature.getX() + creature.getWidth()), creature.getX() - (this.getX() + this.getWidth())));
+
+		double distanceY = Math.max(0, Math.max(this.getY() - (creature.getY() + creature.getHeight()), creature.getY() - (this.getY() + this.getHeight())));
+
+		return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 	}
 
 	public synchronized  int getId() {
