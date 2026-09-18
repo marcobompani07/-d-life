@@ -20,6 +20,15 @@ public class CreatureInfoDisplayThread extends Thread {
         this.ResetCreatureDisplayRunnable=ResetCreatureDisplayRunnable;
         resetted=false;
     }
+
+    public CreatureInfoDisplayThread(CreatureInfoDisplayThread c){
+        stop=false;
+        this.RunnableGenerator=c.getRunnableGenerator();
+        this.creatureId=c.getCreatureId();
+        this.creaturesArray=c.getCreaturesArray();
+        this.updateCreatureCountDisplay=c.getUpdateCreatureCountDisplay();
+         this.ResetCreatureDisplayRunnable=c.getResetCreatureDisplayRunnable();
+    }
     @Override
     public void run(){
         while (!stop) {
@@ -54,8 +63,67 @@ public class CreatureInfoDisplayThread extends Thread {
     public void setCreatureId(int creatureId){
         this.creatureId=creatureId;
     }
+    public int getCreatureId(){
+        return this.creatureId;
+    }
     public void Stop(){
         stop=true;
+    }
+
+    public boolean isStop() {
+        return this.stop;
+    }
+
+    public boolean getStop() {
+        return this.stop;
+    }
+
+    public void setStop(boolean stop) {
+        this.stop = stop;
+    }
+
+    public UpdateCreatureDisplayRunnableGenerator getRunnableGenerator() {
+        return this.RunnableGenerator;
+    }
+
+    public void setRunnableGenerator(UpdateCreatureDisplayRunnableGenerator RunnableGenerator) {
+        this.RunnableGenerator = RunnableGenerator;
+    }
+
+    public Runnable getUpdateCreatureCountDisplay() {
+        return this.updateCreatureCountDisplay;
+    }
+
+    public void setUpdateCreatureCountDisplay(Runnable updateCreatureCountDisplay) {
+        this.updateCreatureCountDisplay = updateCreatureCountDisplay;
+    }
+
+    public Runnable getResetCreatureDisplayRunnable() {
+        return this.ResetCreatureDisplayRunnable;
+    }
+
+    public void setResetCreatureDisplayRunnable(Runnable ResetCreatureDisplayRunnable) {
+        this.ResetCreatureDisplayRunnable = ResetCreatureDisplayRunnable;
+    }
+
+    public ThreadSafeCreaturesArray getCreaturesArray() {
+        return this.creaturesArray;
+    }
+
+    public void setCreaturesArray(ThreadSafeCreaturesArray creaturesArray) {
+        this.creaturesArray = creaturesArray;
+    }
+
+    public boolean isResetted() {
+        return this.resetted;
+    }
+
+    public boolean getResetted() {
+        return this.resetted;
+    }
+
+    public void setResetted(boolean resetted) {
+        this.resetted = resetted;
     }
     
     

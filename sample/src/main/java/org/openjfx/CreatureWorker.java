@@ -8,6 +8,10 @@ public class CreatureWorker extends Thread  {
 		this.actionHandler = actionHandler;
 		this.running = true;
 	}
+	public CreatureWorker(CreatureWorker c){
+		this.actionHandler=c.getActionHandler();
+		this.running=true;
+	}
 
 	@Override
 	public void run() {
@@ -24,4 +28,13 @@ public class CreatureWorker extends Thread  {
 	public void stopWorker() {
 		running = false;
 	}
+
+	public CreatureActionHandler getActionHandler() {
+		return this.actionHandler;
+	}
+
+	public void setActionHandler(CreatureActionHandler actionHandler) {
+		this.actionHandler = actionHandler;
+	}
+
 }

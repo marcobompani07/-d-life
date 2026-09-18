@@ -20,6 +20,12 @@ public class Food {
         this.x=inFood.getX();
         this.y=inFood.getY();
     }
+    public Food(){
+        this.id=-1;
+        this.categoryId=-1;
+        this.x=0;
+        this.y=0;
+    }
 
     public int getId() {
         return this.id;

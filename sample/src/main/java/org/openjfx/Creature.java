@@ -47,6 +47,7 @@ public class Creature {
 		this.creatureArray = creaturesArray;
 		this.backgroundGrid = backgroundGrid;
 		this.threadSafeBackgroundGrid = threadSafeBackgroundGrid;
+		this.lastReproductionTime=System.currentTimeMillis();
 
 		double angle = Math.random() * 2 * Math.PI;
 		this.setDirectionX(Math.cos(angle));
@@ -475,5 +476,8 @@ public class Creature {
 
 	public synchronized ThreadSafeBackgroundGrid getThreadSafeBackgroundGrid() {
 		return threadSafeBackgroundGrid;
+	}
+	public synchronized  CreatureSalveData toCreatureSalveData(){
+		return new CreatureSalveData(this.getId(),this.getX(),this.getY(),this.getWidth(),this.getHeight(),this.getHp(),this.getBaseAttack(),this.getColor(),this.getSpeed());
 	}
 }

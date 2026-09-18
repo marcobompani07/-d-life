@@ -22,4 +22,5 @@ org\openjfx\App$2.class
 org\openjfx\ThreadSafeFoodArray.class
 org\openjfx\BackgroundGridElement.class
 org\openjfx\App.class
+org\openjfx\CreatureSalveData.class
 org\openjfx\SystemInfo.class

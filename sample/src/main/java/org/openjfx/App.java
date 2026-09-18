@@ -1,5 +1,13 @@
 package org.openjfx;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -18,8 +26,10 @@ import javafx.stage.Stage;
 
 public class App extends Application {
     private static final int MAX_CREATURES = 10000;
-	private static final int INITIAL_CREATURES = 3;
+	private static final int INITIAL_CREATURES = 200;
     private static final int FOODSPAWNOUNT = 100;
+    private static final boolean startFormSave=true;
+    
 
 	private static int nextCreatureId = 0;
 	private static int currentCreatureCount = INITIAL_CREATURES;
@@ -37,6 +47,18 @@ public class App extends Application {
     private boolean startDrag = false;
     private boolean hasDragged = false;
     private double previusDragX = 0, previusDragY = 0;
+
+    private UpdateCreatureDisplayRunnableGenerator updateCreatureDisplayRunnableGenerator;
+    private CreatureInfoDisplayThread creatureInfoDisplayThread;
+    private FoodGeneratorThread foodGeneratorThread;
+	private ThreadSafeUpdateMapQueueCounter mapCounter;
+    private UpdateGuiRunnableGenerator updateRunnableGenerator;
+    private MovmentHandlingThread movmentHandlingThread;
+    private ThreadSafeCreatureUpdateCounter updateCounter;
+
+    private Creature[] creatures;
+    private Food[] foodArray;
+    private BackgroundGridElement[][] backgroundGrid;
 
     @Override
     public void start(Stage stage) throws InterruptedException {
@@ -99,7 +121,8 @@ public class App extends Application {
         });
         Label creatureCounterLabel=new Label();
         creatureCounterLabel.setTextFill(Color.web("#ffffff"));
-        HBox topBar = new HBox(10*standardUnit, zoomSpinner,zoomButton,creatureCounterLabel);
+        Button salveButton=new Button("Salve");
+        HBox topBar = new HBox(10*standardUnit, zoomSpinner,zoomButton,creatureCounterLabel,salveButton);
         topBar.setStyle("-fx-padding: "+(10*standardUnit)+"px;-fx-background-color: #494848;");
         topBar.setSpacing(15*standardUnit);
         root.setTop(topBar);
@@ -115,11 +138,28 @@ public class App extends Application {
         rigthBar.setMaxWidth(standardUnit*150);
         rigthBar.setMinWidth(standardUnit*150);
         root.setRight(rigthBar);
-
-		Creature[] creatures = new Creature[MAX_CREATURES];
-        Food[] foodArray=new Food[MAX_CREATURES ];
-        BackgroundGridElement[][] backgroundGrid= new BackgroundGridElement[(int)(WORLD_WIDTH+1) / 10][(int)(WORLD_HEIGHT+1) / 10];
-
+        CreatureSalveData[] cCreatures=null;
+        if (startFormSave){
+            ObjectMapper mapper=new ObjectMapper();
+            try {
+                Path filePath = Path.of("src", "main", "resources", "salves", "salve.json");
+                HashMap<String, Object> saveData=(HashMap)mapper.readValue(filePath.toFile(),  HashMap.class);
+                foodArray=mapper.convertValue(saveData.get("foodItems"),Food[].class);
+                backgroundGrid=mapper.convertValue(saveData.get("backgroundGrid"),BackgroundGridElement[][].class);
+                currentCreatureCount=mapper.convertValue(saveData.get("creatureNumber"),Integer.class);
+                cCreatures=mapper.convertValue(saveData.get("creatures"),CreatureSalveData[].class);
+                creatures=new Creature[cCreatures.length];
+            } catch (IOException e) {
+                e.printStackTrace();
+                
+            }
+            
+        }else{
+            creatures= new Creature[MAX_CREATURES];
+            foodArray=new Food[MAX_CREATURES ];
+            backgroundGrid= new BackgroundGridElement[(int)(WORLD_WIDTH+1) / 10][(int)(WORLD_HEIGHT+1) / 10];
+        }
+		
         for(int i=0;i<backgroundGrid.length;i++){
             for(int i2=0;i2<backgroundGrid[i].length;i2++){
                 backgroundGrid[i][i2]=new BackgroundGridElement();
@@ -132,21 +172,31 @@ public class App extends Application {
 		ThreadSafeCreaturesArray creaturesArray=new ThreadSafeCreaturesArray(creatures);
 		
 		nextCreatureId = 0;
-		while(nextCreatureId < INITIAL_CREATURES){
-			int width = 10;
-			int height = 10;
-			double x = Math.random() * (WORLD_WIDTH - width);
-			double y = Math.random() * (WORLD_HEIGHT - height);
-			double hp = Math.random() * 100 + 100;
-			double baseAttack = Math.random() * 10 + 1;
+        if(!startFormSave){
+            while(nextCreatureId < INITIAL_CREATURES){
+                int width = 10;
+                int height = 10;
+                double x = Math.random() * (WORLD_WIDTH - width);
+                double y = Math.random() * (WORLD_HEIGHT - height);
+                double hp = Math.random() * 100 + 100;
+                double baseAttack = Math.random() * 10 + 1;
 
-			Creature creature = new Creature(nextCreatureId, x, y, width, height, hp, baseAttack, Color.color(Math.random(), Math.random(), Math.random()), Math.random() +0.2, threadSafeFoodArray, creaturesArray, backgroundGrid, threadSafeBackgroundGrid);
-			
-			if(threadSafeBackgroundGrid.addCreature(x, y, width, height, nextCreatureId)){
-				creatures[nextCreatureId] = creature;
-				nextCreatureId++;
-			}
-		}
+                Creature creature = new Creature(nextCreatureId, x, y, width, height, hp, baseAttack, Color.color(Math.random(), Math.random(), Math.random()), Math.random() +0.2, threadSafeFoodArray, creaturesArray, backgroundGrid, threadSafeBackgroundGrid);
+                
+                if(threadSafeBackgroundGrid.addCreature(x, y, width, height, nextCreatureId)){
+                    creatures[nextCreatureId] = creature;
+                    nextCreatureId++;
+                }
+            }
+        }else{
+            for(int i=0;i<creatures.length;i++){
+                    if(cCreatures[i]!=null){
+                        creatures[i]=new Creature(cCreatures[i].getId(),cCreatures[i].getX(),cCreatures[i].getY(),cCreatures[i].getWidth(),cCreatures[i].getHeight(),cCreatures[i].getHp(),cCreatures[i].getBaseAttack(),cCreatures[i].getColor(),cCreatures[i].getSpeed(),threadSafeFoodArray, creaturesArray, backgroundGrid, threadSafeBackgroundGrid);
+                    }else{
+                        creatures[i]=null;
+                    }
+                }
+        }
         Runnable updateCreatureCountDisplay=new Runnable() {
             @Override
             public void run(){
@@ -160,13 +210,13 @@ public class App extends Application {
                 dispayCreatureLabel.setText("");
             }
         };
-        UpdateCreatureDisplayRunnableGenerator updateCreatureDisplayRunnableGenerator=new UpdateCreatureDisplayRunnableGenerator(dispayCreatureLabel,creatureColorShowPane);
-        CreatureInfoDisplayThread creatureInfoDisplayThread=new CreatureInfoDisplayThread(updateCreatureDisplayRunnableGenerator, creaturesArray,updateCreatureCountDisplay,ResetCreatureDisplayRunnable);
-        FoodGeneratorThread foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,App.FOODSPAWNOUNT);
-		ThreadSafeUpdateMapQueueCounter mapCounter=new ThreadSafeUpdateMapQueueCounter();
-        UpdateGuiRunnableGenerator updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
-        MovmentHandlingThread movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
-        ThreadSafeCreatureUpdateCounter updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
+        updateCreatureDisplayRunnableGenerator=new UpdateCreatureDisplayRunnableGenerator(dispayCreatureLabel,creatureColorShowPane);
+        creatureInfoDisplayThread=new CreatureInfoDisplayThread(updateCreatureDisplayRunnableGenerator, creaturesArray,updateCreatureCountDisplay,ResetCreatureDisplayRunnable);
+        foodGeneratorThread=new FoodGeneratorThread(threadSafeFoodArray, backgroundGrid,App.FOODSPAWNOUNT);
+		mapCounter=new ThreadSafeUpdateMapQueueCounter();
+        updateRunnableGenerator=new UpdateGuiRunnableGenerator(mapGrapychHandler, mapCounter);
+        movmentHandlingThread=new MovmentHandlingThread(updateRunnableGenerator,mapCounter,creaturesArray,threadSafeFoodArray);
+        updateCounter = new ThreadSafeCreatureUpdateCounter(creaturesArray);
 		workers = new CreatureWorker[WORKER_COUNT];
         creatureInfoDisplayThread.setCreatureId(-1);
 		for (int i = 0; i < WORKER_COUNT; i++) {
@@ -198,6 +248,58 @@ public class App extends Application {
         foodGeneratorThread.start();
 		movmentHandlingThread.start();
         creatureInfoDisplayThread.start();
+
+        salveButton.setOnAction(e -> {
+            try {
+                movmentHandlingThread.Stop();
+                movmentHandlingThread.join();
+                foodGeneratorThread.Stop();
+                foodGeneratorThread.join();
+                creatureInfoDisplayThread.Stop();
+                creatureInfoDisplayThread.join();
+                for (CreatureWorker worker : workers) {
+                    worker.stopWorker();
+                    worker.join();
+                }
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            
+            Path filePath = Path.of("src", "main", "resources", "salves", "salve.json");
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+                Map<String, Object> saveData = new HashMap<>();
+                CreatureSalveData[] creatureSalveData=new CreatureSalveData[creatures.length];
+                for(int i=0;i<creatureSalveData.length;i++){
+                    if(creatures[i]!=null){
+                       creatureSalveData[i]=creatures[i].toCreatureSalveData();
+                    }else{
+                        creatureSalveData[i]=null;
+                    }
+                }
+                saveData.put("creatures", creatureSalveData);
+                saveData.put("foodItems", foodArray);
+                saveData.put("backgroundGrid", backgroundGrid);
+                saveData.put("creaturecounter",updateCounter);
+                saveData.put("creatureNumber", currentCreatureCount);
+                try {
+                    mapper.writeValue(filePath.toFile(),saveData);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                
+            movmentHandlingThread=new MovmentHandlingThread(movmentHandlingThread);
+            movmentHandlingThread.start();
+            foodGeneratorThread=new FoodGeneratorThread(foodGeneratorThread);
+            foodGeneratorThread.start();
+            creatureInfoDisplayThread=new CreatureInfoDisplayThread(creatureInfoDisplayThread);
+            creatureInfoDisplayThread.start();
+			for (int i = 0; i < WORKER_COUNT; i++) {
+			workers[i] = new CreatureWorker(workers[i]);
+			workers[i].start();
+		}
+        });
         stage.setOnCloseRequest(event -> {
 
             movmentHandlingThread.Stop();
