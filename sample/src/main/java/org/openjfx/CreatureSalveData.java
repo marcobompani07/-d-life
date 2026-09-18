@@ -23,10 +23,10 @@ public class CreatureSalveData {
 	private long lastAttackTime = 0;
 	private static final long ATTACK_COOLDOWN = 500;
 	private double reproductionRate;
-	private long lastReproductionTime = 0;
+	private long lastReproductionTimeOffset =0;
 	private static final long REPRODUCTION_COOLDOWN = 10000;
 
-	public CreatureSalveData(int id, double x, double y, double width, double height, double hp, double baseAttack, Color color, double speed) {
+	public CreatureSalveData(int id, double x, double y, double width, double height, double hp, double baseAttack, Color color, double speed, long lastReproductionTimeOffset) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -43,18 +43,18 @@ public class CreatureSalveData {
 		this.view = 5;
 		this.attackRange = 1;
 		this.reproductionRate = 0.1;
-
+		this.lastReproductionTimeOffset=lastReproductionTimeOffset;
 		double angle = Math.random() * 2 * Math.PI;
 		this.setDirectionX(Math.cos(angle));
 		this.setDirectionY(Math.sin(angle));
 	}
 
-	public CreatureSalveData (Creature c) {
-		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), c.getHp(), c.getBaseAttack(), c.getColor(), c.getSpeed());
+	public CreatureSalveData (CreatureSalveData c) {
+		this(c.getId(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), c.getHp(), c.getBaseAttack(), c.getColor(), c.getSpeed(),c.getLastReproductionTime());
     }
 
 	public CreatureSalveData() {
-		this(0, 0, 0, 10, 10, 100, 5,Color.RED, 2.0 );
+		this(0, 0, 0, 10, 10, 100, 5,Color.RED, 2.0,0 );
 	}
 	public synchronized  int getId() {
 		return id;
@@ -166,9 +166,19 @@ public class CreatureSalveData {
 		return reproductionRate;
 	}
 
-	public synchronized double getLastReproductionTime() {
-		return lastReproductionTime;
+	public long getLastReproductionTimeOffset() {
+		return this.lastReproductionTimeOffset;
 	}
+
+	public void setLastReproductionTimeOffset(long lastReproductionTimeOffset) {
+		this.lastReproductionTimeOffset = lastReproductionTimeOffset;
+	}
+
+	@JsonIgnore
+	public synchronized long getLastReproductionTime() {
+		return System.currentTimeMillis()-lastReproductionTimeOffset;
+	}
+
 
 	public double getRed() {
 		return this.red;

@@ -22,7 +22,7 @@ public class Creature {
 	private static final long ATTACK_COOLDOWN = 500;
 	private double reproductionRate;
 	private long lastReproductionTime = 0;
-	private static final long REPRODUCTION_COOLDOWN = 10000;
+	private static final long REPRODUCTION_COOLDOWN = 100000;
 	private ThreadSafeFoodArray foodArray;
 	private ThreadSafeCreaturesArray creatureArray;
 	private BackgroundGridElement[][] backgroundGrid;
@@ -461,6 +461,10 @@ public class Creature {
 	public synchronized double getLastReproductionTime() {
 		return lastReproductionTime;
 	}
+	public void setLastReproductionTime(long lastReproductionTime) {
+		this.lastReproductionTime = lastReproductionTime;
+	}
+
 
 	public synchronized ThreadSafeFoodArray getFoodArray() {
 		return foodArray;
@@ -478,6 +482,6 @@ public class Creature {
 		return threadSafeBackgroundGrid;
 	}
 	public synchronized  CreatureSalveData toCreatureSalveData(){
-		return new CreatureSalveData(this.getId(),this.getX(),this.getY(),this.getWidth(),this.getHeight(),this.getHp(),this.getBaseAttack(),this.getColor(),this.getSpeed());
+		return new CreatureSalveData(this.getId(),this.getX(),this.getY(),this.getWidth(),this.getHeight(),this.getHp(),this.getBaseAttack(),this.getColor(),this.getSpeed(),System.currentTimeMillis()-lastReproductionTime);
 	}
 }
