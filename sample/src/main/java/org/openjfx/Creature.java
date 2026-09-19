@@ -25,7 +25,7 @@ public class Creature {
 	private double reproductionRate;
 	private double reproductionProbability;
 	private long lastReproductionTime = 0;
-	private static final long REPRODUCTION_COOLDOWN = 10000;
+	private static final long REPRODUCTION_COOLDOWN = 100000;
 	private ThreadSafeFoodArray foodArray;
 	private ThreadSafeCreaturesArray creatureArray;
 	private BackgroundGridElement[][] backgroundGrid;
@@ -52,6 +52,7 @@ public class Creature {
 		this.creatureArray = creaturesArray;
 		this.backgroundGrid = backgroundGrid;
 		this.threadSafeBackgroundGrid = threadSafeBackgroundGrid;
+		this.lastReproductionTime=System.currentTimeMillis();
 
 		double angle = Math.random() * 2 * Math.PI;
 		this.setDirectionX(Math.cos(angle));
@@ -696,6 +697,10 @@ public class Creature {
 	public synchronized double getLastReproductionTime() {
 		return lastReproductionTime;
 	}
+	public void setLastReproductionTime(long lastReproductionTime) {
+		this.lastReproductionTime = lastReproductionTime;
+	}
+
 
 	public synchronized ThreadSafeFoodArray getFoodArray() {
 		return foodArray;
@@ -711,6 +716,9 @@ public class Creature {
 
 	public synchronized ThreadSafeBackgroundGrid getThreadSafeBackgroundGrid() {
 		return threadSafeBackgroundGrid;
+	}
+	public synchronized  CreatureSalveData toCreatureSalveData(){
+		return new CreatureSalveData(this.getId(),this.getX(),this.getY(),this.getWidth(),this.getHeight(),this.getHp(),this.getBaseAttack(),this.getColor(),this.getSpeed(),System.currentTimeMillis()-lastReproductionTime);
 	}
 
 	public synchronized double getReproductionProbability(){

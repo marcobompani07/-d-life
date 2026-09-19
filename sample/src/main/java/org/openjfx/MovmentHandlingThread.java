@@ -15,8 +15,16 @@ public class MovmentHandlingThread extends Thread{
         this.foodArray=foodArray;
         stop=false;
     }
+    public MovmentHandlingThread(MovmentHandlingThread c){
+        this.updateRunnableGenerator=c.getUpdateRunnableGenerator();
+        this.counter=c.getCounter();
+        this.creaturesArray=c.getCreaturesArray();
+        this.foodArray=c.getFoodArray();
+        this.stop=false;
+    }
     @Override
     public void run(){
+        stop=false;
         while (!stop){
             long startTime=System.currentTimeMillis();
             if (counter.getCounter()<1){
@@ -65,4 +73,49 @@ public class MovmentHandlingThread extends Thread{
     public void Stop(){
         stop=true;
     }
+
+    public UpdateGuiRunnableGenerator getUpdateRunnableGenerator() {
+        return this.updateRunnableGenerator;
+    }
+
+    public void setUpdateRunnableGenerator(UpdateGuiRunnableGenerator updateRunnableGenerator) {
+        this.updateRunnableGenerator = updateRunnableGenerator;
+    }
+
+    public ThreadSafeUpdateMapQueueCounter getCounter() {
+        return this.counter;
+    }
+
+    public void setCounter(ThreadSafeUpdateMapQueueCounter counter) {
+        this.counter = counter;
+    }
+
+    public boolean isStop() {
+        return this.stop;
+    }
+
+    public boolean getStop() {
+        return this.stop;
+    }
+
+    public void setStop(boolean stop) {
+        this.stop = stop;
+    }
+
+    public ThreadSafeCreaturesArray getCreaturesArray() {
+        return this.creaturesArray;
+    }
+
+    public void setCreaturesArray(ThreadSafeCreaturesArray creaturesArray) {
+        this.creaturesArray = creaturesArray;
+    }
+
+    public ThreadSafeFoodArray getFoodArray() {
+        return this.foodArray;
+    }
+
+    public void setFoodArray(ThreadSafeFoodArray foodArray) {
+        this.foodArray = foodArray;
+    }
+
 }

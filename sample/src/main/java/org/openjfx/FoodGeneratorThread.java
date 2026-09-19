@@ -11,8 +11,15 @@ public class FoodGeneratorThread extends Thread{
         this.foodGenerationCount=foodGenerationCount;
         stop=false;
     }
+    public FoodGeneratorThread(FoodGeneratorThread c){
+        this.foodArray=c.getFoodArray();
+        this.backgroundGrid=c.getBackgroundGrid();
+        this.foodGenerationCount=c.getFoodGenerationCount();
+        this.stop=false;
+    }
     @Override
     public void run(){
+        stop=false;
         while(!stop){
             long stantingTime=System.currentTimeMillis();
             int generatedFood=0;
@@ -54,4 +61,41 @@ public class FoodGeneratorThread extends Thread{
     public void Stop(){
         stop=true;
     }
+
+    public ThreadSafeFoodArray getFoodArray() {
+        return this.foodArray;
+    }
+
+    public void setFoodArray(ThreadSafeFoodArray foodArray) {
+        this.foodArray = foodArray;
+    }
+
+    public BackgroundGridElement[][] getBackgroundGrid() {
+        return this.backgroundGrid;
+    }
+
+    public void setBackgroundGrid(BackgroundGridElement[][] backgroundGrid) {
+        this.backgroundGrid = backgroundGrid;
+    }
+
+    public boolean isStop() {
+        return this.stop;
+    }
+
+    public boolean getStop() {
+        return this.stop;
+    }
+
+    public void setStop(boolean stop) {
+        this.stop = stop;
+    }
+
+    public int getFoodGenerationCount() {
+        return this.foodGenerationCount;
+    }
+
+    public void setFoodGenerationCount(int foodGenerationCount) {
+        this.foodGenerationCount = foodGenerationCount;
+    }
+
 }
