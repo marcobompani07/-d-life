@@ -23,9 +23,8 @@ public class Creature {
 	private long lastAttackTime = 0;
 	private static final long ATTACK_COOLDOWN = 500;
 	private double reproductionRate;
-	private double reproductionProbability;
 	private long lastReproductionTime = 0;
-	private static final long REPRODUCTION_COOLDOWN = 100000;
+	public static final long REPRODUCTION_COOLDOWN = 10000;
 	private ThreadSafeFoodArray foodArray;
 	private ThreadSafeCreaturesArray creatureArray;
 	private BackgroundGridElement[][] backgroundGrid;
@@ -47,7 +46,6 @@ public class Creature {
 		this.view = 5;
 		this.attackRange = 1;
 		this.reproductionRate = 0.1;
-		this.reproductionProbability = 0.2;
 		this.foodArray = foodArray;
 		this.creatureArray = creaturesArray;
 		this.backgroundGrid = backgroundGrid;
@@ -67,160 +65,6 @@ public class Creature {
 		this(0, 0, 0, 10, 10, 100, 5,Color.RED, 2.0, null, null, null, null);
 	}
 
-	private void reproduct(){
-		int newId = creatureArray.getAvailableId();
-
-		if(newId == -1){
-			return;
-		}
-
-		double childWidth = 10;
-		double childHeight = 10;
-
-		double minRadius = 15;
-		double maxRadius = 40;
-		double radius = minRadius + Math.random() * (maxRadius - minRadius);
-		
-		double angle = Math.random() * 2 * Math.PI;
-		double spawnX = this.getX() + radius * Math.cos(angle);
-		double spawnY = this.getY() + radius * Math.sin(angle);
-		spawnX = Math.max(0, Math.min(App.WORLD_WIDTH - childWidth, spawnX));
-    	spawnY = Math.max(0, Math.min(App.WORLD_HEIGHT - childHeight, spawnY));
-
-		/*double childHp = mutate(this.getMaxHp(), 0.15, 50, 500);
-		double childAttack = mutate(this.getBaseAttack(), 0.15, 1, 25);
-		double childSpeed = mutate(this.getSpeed(), 0.10, 0.2, 3);
-
-		Color childColor = mutateColor(this.getColor(), 0.02);*/
-		double childHp;
-		double childAttack;
-		double childSpeed;
-		Color childColor;
-		childHp= mutate(this.getMaxHp(), 0.15*App.MutationRate, 50, 500);
-		childAttack= mutate(this.getBaseAttack(), 0.15*App.MutationRate, 1, 25);
-		childSpeed = mutate(this.getSpeed(), 0.10*App.MutationRate, 0.2, 3);
-		childColor = mutateColor(this.getColor(), 0.02*App.MutationRate);
-
-		Creature newChild = new Creature(newId, spawnX, spawnY, childWidth, childHeight, childHp, childAttack, childColor, childSpeed, this.foodArray, this.creatureArray, this.backgroundGrid, this.threadSafeBackgroundGrid);
-
-		if(threadSafeBackgroundGrid.addCreature(spawnX, spawnY, childWidth, childHeight, newId)){
-			creatureArray.addCreature(newChild);
-			App.addCreature();
-		}/*else{
-			App.cancelCreatureCreation();
-		}*/
-	}
-
-	private double mutate(double baseValue, double mutationFactor, double min, double max){
-		double change = ((Math.random() * 2 - 1) * mutationFactor) + 1.0;
-		double mutatedValue = baseValue * change;
-		return Math.max(min, Math.min(max, mutatedValue));
-	}
-
-	private Color mutateColor(Color parentColor, double variation){
-		double r = Math.max(0, Math.min(1, parentColor.getRed() + (Math.random() * 2 - 1) * variation));
-		double g = Math.max(0, Math.min(1, parentColor.getGreen() + (Math.random() * 2 - 1) * variation));
-		double b = Math.max(0, Math.min(1, parentColor.getBlue() + (Math.random() * 2 - 1) * variation));
-
-		return Color.color(r, g, b);
-	}
-
-	public void updateOld() throws InterruptedException{
-
-		if(this.getHunger() < 100 && this.getHp() > 0){
-			double weightedSpeed = this.getSpeed();
-			double weightedAttack = this.getBaseAttack();
-
-			if(this.getHunger() >= 60){
-				double hungerEffect = (this.getHunger() - 60) / 40;
-				weightedSpeed = this.getSpeed() * (1 - hungerEffect);
-				weightedAttack = this.getBaseAttack() * (1 - hungerEffect);
-			}
-
-			Object [] closestFoodData = findClosestFood();
-			Food closestFood = (Food) closestFoodData[0];
-			double closestDistance = (double) closestFoodData[1];
-
-			double newX, newY;
-
-			if(closestFood != null && closestDistance > 0){
-				double newDirectionX = (closestFood.getX() - this.getX()) / closestDistance;
-				double newDirectionY = (closestFood.getY() - this.getY()) / closestDistance;
-
-				newX = this.getX() + newDirectionX * weightedSpeed;
-				newY = this.getY() + newDirectionY * weightedSpeed;	
-			}else{
-				if(Math.random() < 0.01){
-					double angle = Math.random() * 2 * Math.PI;
-					this.setDirectionX(Math.cos(angle));
-					this.setDirectionY(Math.sin(angle));
-				}
-
-				newX = this.getX() + this.getDirectionX() * weightedSpeed;
-				newY = this.getY() + this.getDirectionY() * weightedSpeed;
-
-				if(newX <= 0 || newX >= App.WORLD_WIDTH - this.getWidth()){
-					this.setDirectionX(this.getDirectionX() * -1);
-				}
-
-				if(newY <= 0 || newY >= App.WORLD_HEIGHT - this.getHeight()){
-					this.setDirectionY(this.getDirectionY() * -1);
-				}
-			}
-
-			newX = Math.max(0, Math.min(App.WORLD_WIDTH - this.getWidth(), newX));
-			newY = Math.max(0, Math.min(App.WORLD_HEIGHT - this.getHeight(), newY));
-
-			if(closestFood != null){
-				eatFood(closestFood, closestFood.getId(), newX, newY);
-			}
-
-			Object[] closestCreatureData = findClosestCreature();
-			Creature closestCreature = (Creature) closestCreatureData[0];
-			double closestCreatureDistance = (double) closestCreatureData[1];
-
-			if(closestCreature != null && closestCreatureDistance <= this.getAttackRange() * 10){
-				long currentTime = System.currentTimeMillis();
-
-				if(currentTime - lastAttackTime >= ATTACK_COOLDOWN){
-					closestCreature.takeDamage(weightedAttack);
-					lastAttackTime = currentTime;
-				}
-			}
-
-			if(move(newX, newY)){
-				this.setHunger(this.getHunger() + this.getSpeed() / 100);
-
-				if(this.getHunger() >= 100){
-					threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
-					creatureArray.removeCreature(this.getId());
-					App.removeCreature(this.getId());
-					return;
-				}
-			}else{
-				this.setDirectionX(this.getDirectionX() * -1);
-				this.setDirectionY(this.getDirectionY() * -1);
-			}
-
-			long currentTime = System.currentTimeMillis();
-
-			if(currentTime - lastReproductionTime >= REPRODUCTION_COOLDOWN &&this.getHunger()<20){
-				if(Math.random() < this.getReproductionRate()){
-					reproduct();
-					lastReproductionTime = currentTime;
-					this.setHunger(this.getHunger() + 60);
-
-					if(this.getHunger() >= 100){
-						threadSafeBackgroundGrid.removeCreature(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getId());
-						creatureArray.removeCreature(this.getId());
-						App.removeCreature(this.getId());
-						return;
-					}
-				}
-			}
-		}
-	}
-
 	public void update() throws InterruptedException{
 
 		if(this.getHunger() < 100 && this.getHp() > 0){
@@ -238,8 +82,6 @@ public class Creature {
 			double closestFoodDistance = (double) closestFoodData[1];
 
 			Object[] closestCreatureData = findClosestCreature();
-			Creature closestCreature = (Creature) closestCreatureData[0];
-			double closestCreatureDistance = (double) closestCreatureData[1];
 
 			int action = this.brain.think(closestFoodData, closestCreatureData, this.getX(), this.getY(), this.getView(), this.getAttackRange(), this.getHunger(), this.getHp(), this.getMaxHp(), this);
 			double newX, newY, newDirectionX, newDirectionY;
@@ -431,6 +273,63 @@ public class Creature {
 		}
 	}
 
+	private void reproduct(){
+		int newId = creatureArray.getAvailableId();
+
+		if(newId == -1){
+			return;
+		}
+
+		double childWidth = 10;
+		double childHeight = 10;
+
+		double minRadius = 15;
+		double maxRadius = 40;
+		double radius = minRadius + Math.random() * (maxRadius - minRadius);
+		
+		double angle = Math.random() * 2 * Math.PI;
+		double spawnX = this.getX() + radius * Math.cos(angle);
+		double spawnY = this.getY() + radius * Math.sin(angle);
+		spawnX = Math.max(0, Math.min(App.WORLD_WIDTH - childWidth, spawnX));
+    	spawnY = Math.max(0, Math.min(App.WORLD_HEIGHT - childHeight, spawnY));
+
+		/*double childHp = mutate(this.getMaxHp(), 0.15, 50, 500);
+		double childAttack = mutate(this.getBaseAttack(), 0.15, 1, 25);
+		double childSpeed = mutate(this.getSpeed(), 0.10, 0.2, 3);
+
+		Color childColor = mutateColor(this.getColor(), 0.02);*/
+		double childHp;
+		double childAttack;
+		double childSpeed;
+		Color childColor;
+		childHp= mutate(this.getMaxHp(), 0.15*App.MutationRate, 50, 500);
+		childAttack= mutate(this.getBaseAttack(), 0.15*App.MutationRate, 1, 25);
+		childSpeed = mutate(this.getSpeed(), 0.10*App.MutationRate, 0.2, 3);
+		childColor = mutateColor(this.getColor(), 0.02*App.MutationRate);
+
+		Creature newChild = new Creature(newId, spawnX, spawnY, childWidth, childHeight, childHp, childAttack, childColor, childSpeed, this.foodArray, this.creatureArray, this.backgroundGrid, this.threadSafeBackgroundGrid);
+
+		if(threadSafeBackgroundGrid.addCreature(spawnX, spawnY, childWidth, childHeight, newId)){
+			creatureArray.addCreature(newChild);
+			App.addCreature();
+		}/*else{
+			App.cancelCreatureCreation();
+		}*/
+	}
+
+	private double mutate(double baseValue, double mutationFactor, double min, double max){
+		double change = ((Math.random() * 2 - 1) * mutationFactor) + 1.0;
+		double mutatedValue = baseValue * change;
+		return Math.max(min, Math.min(max, mutatedValue));
+	}
+
+	private Color mutateColor(Color parentColor, double variation){
+		double r = Math.max(0, Math.min(1, parentColor.getRed() + (Math.random() * 2 - 1) * variation));
+		double g = Math.max(0, Math.min(1, parentColor.getGreen() + (Math.random() * 2 - 1) * variation));
+		double b = Math.max(0, Math.min(1, parentColor.getBlue() + (Math.random() * 2 - 1) * variation));
+
+		return Color.color(r, g, b);
+	}
 
 	public synchronized boolean takeDamage(double damage){
 		this.setHp(this.getHp() - damage);
@@ -717,11 +616,7 @@ public class Creature {
 	public synchronized ThreadSafeBackgroundGrid getThreadSafeBackgroundGrid() {
 		return threadSafeBackgroundGrid;
 	}
-	public synchronized  CreatureSalveData toCreatureSalveData(){
-		return new CreatureSalveData(this.getId(),this.getX(),this.getY(),this.getWidth(),this.getHeight(),this.getHp(),this.getBaseAttack(),this.getColor(),this.getSpeed(),System.currentTimeMillis()-lastReproductionTime);
-	}
-
-	public synchronized double getReproductionProbability(){
-		return reproductionProbability;
+	public synchronized  CreatureSaveData toCreatureSaveData(){
+		return new CreatureSaveData(this.getId(),this.getX(),this.getY(),this.getWidth(),this.getHeight(),this.getHp(),this.getBaseAttack(),this.getColor(),this.getSpeed(),System.currentTimeMillis()-lastReproductionTime);
 	}
 }

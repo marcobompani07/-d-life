@@ -10,6 +10,7 @@ org\openjfx\Creature.class
 org\openjfx\Food.class
 org\openjfx\CreatureWorker.class
 org\openjfx\ThreadSafeUpdateMapQueueCounter.class
+org\openjfx\CreatureSaveData.class
 org\openjfx\MovmentHandlingThread.class
 org\openjfx\UpdateGuiRunnableGenerator.class
 org\openjfx\CreatureBrain.class
@@ -22,5 +23,4 @@ org\openjfx\App$2.class
 org\openjfx\ThreadSafeFoodArray.class
 org\openjfx\BackgroundGridElement.class
 org\openjfx\App.class
-org\openjfx\CreatureSalveData.class
 org\openjfx\SystemInfo.class

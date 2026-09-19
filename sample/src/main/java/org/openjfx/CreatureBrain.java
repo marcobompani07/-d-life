@@ -54,17 +54,22 @@ public class CreatureBrain {
 			return MOVE_TO_FOOD;
 		}
 
-		boolean canReproduce = (hunger < 30.0) && (hp >= maxHp * 0.80) && (Math.random() <= callingCreature.getReproductionProbability());
-		if(canReproduce) {
-			if(creatureTarget == null){
-				return REPRODUCE;
-			}
+		long currentTime = System.currentTimeMillis();
+		boolean isCooldownReady = (currentTime - callingCreature.getLastReproductionTime()) >= Creature.REPRODUCTION_COOLDOWN;
+		boolean isWellFedAndHealthy = (hunger < 30.0) && (hp >= maxHp * 0.80);
 
-			double targetDistance = callingCreature.getDistanceToCreature(creatureTarget);
-			if(targetDistance <= (attackRange * 10)){
-				return REPRODUCE;
-			} else {
-				return MOVE_TO_CREATURE;
+		if(isCooldownReady && isWellFedAndHealthy) {
+			if(Math.random() <= callingCreature.getReproductionRate()){
+				if(creatureTarget == null){
+					return REPRODUCE;
+				}
+
+				double targetDistance = callingCreature.getDistanceToCreature(creatureTarget);
+				if(targetDistance <= (attackRange * 10)){
+					return REPRODUCE;
+				} else {
+					return MOVE_TO_CREATURE;
+				}
 			}
 		}
 
