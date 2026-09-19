@@ -20,6 +20,7 @@ public class CreatureBrain {
 		double closestFoodDistance = (double) closestFoodData[1];
 		Creature closestCreature = (Creature) closestCreatureData[0];
 
+		// Target validation
 		if (creatureTarget != null && creatureTarget.getHp() <= 0) {
             creatureTarget = null;
         }
@@ -35,10 +36,12 @@ public class CreatureBrain {
 			}
 		}
 
+		// Eat if possible
 		if(closestFood != null && closestFoodDistance <= Food.FOOD_WIDTH / 2){
 			return EAT;
 		}
 
+		// Emergency survival checks for low HP and too high Hunger
 		boolean isLowHp = hp <= (maxHp * 0.60);
 		boolean isTooHungry = hunger >= 75.0;
 
@@ -50,6 +53,7 @@ public class CreatureBrain {
 			}
 		}
 
+		// Search for food when hungry
 		if (closestFood != null && (hunger >= 40 || creatureTarget == null)){
 			return MOVE_TO_FOOD;
 		}
@@ -58,8 +62,13 @@ public class CreatureBrain {
 		boolean isCooldownReady = (currentTime - callingCreature.getLastReproductionTime()) >= Creature.REPRODUCTION_COOLDOWN;
 		boolean isWellFedAndHealthy = (hunger < 30.0) && (hp >= maxHp * 0.80);
 
+		// Creature tries to reproduce if cooldown is expired and it's in good health
 		if(isCooldownReady && isWellFedAndHealthy) {
 			if(Math.random() <= callingCreature.getReproductionRate()){
+				/*
+				 if it has a target creature close he will try to reproduce thanks to him,
+				 otherwise he will reproduce alone (Sexual reproduction and Asexual reproduction)
+				 */
 				if(creatureTarget == null){
 					return REPRODUCE;
 				}
@@ -73,6 +82,7 @@ public class CreatureBrain {
 			}
 		}
 
+		// if possible fight target creature or hunt him, otherwise move randomly
 		if(creatureTarget != null && creatureTarget.getHp() > 0){
 			double targetDistance = callingCreature.getDistanceToCreature(creatureTarget);
 

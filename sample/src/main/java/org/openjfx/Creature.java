@@ -87,6 +87,7 @@ public class Creature {
 			double newX, newY, newDirectionX, newDirectionY;
 			Creature target = this.brain.getCreatureTarget();
 
+			// perform an action based on brain output
 			switch (action){
 				case CreatureBrain.EAT:
 					if(closestFood != null){
@@ -130,9 +131,7 @@ public class Creature {
 					if (target == null) break;
 
 					double targetDistanceX = target.getX() - this.getX();
-
 					double targetDistanceY = target.getY() - this.getY();
-
 					double targetDistance = Math.sqrt(targetDistanceX * targetDistanceX + targetDistanceY * targetDistanceY);
 
 					if (targetDistance <= 0) break;
@@ -283,6 +282,7 @@ public class Creature {
 		double childWidth = 10;
 		double childHeight = 10;
 
+		// set child spawnpoint in a radius around parent
 		double minRadius = 15;
 		double maxRadius = 40;
 		double radius = minRadius + Math.random() * (maxRadius - minRadius);
@@ -302,6 +302,8 @@ public class Creature {
 		double childAttack;
 		double childSpeed;
 		Color childColor;
+
+		// mutate child proprieties based also on the parent ones
 		childHp= mutate(this.getMaxHp(), 0.15*App.MutationRate, 50, 500);
 		childAttack= mutate(this.getBaseAttack(), 0.15*App.MutationRate, 1, 25);
 		childSpeed = mutate(this.getSpeed(), 0.10*App.MutationRate, 0.2, 3);
@@ -345,6 +347,7 @@ public class Creature {
 		return false;
 	}
 
+	// this finds the closest food searching only within it's view without slowing down the simulation
 	private Object[] findClosestFood() throws InterruptedException{
 		Food closestFood = null;
 		double closestDistance = Double.MAX_VALUE;
@@ -386,6 +389,7 @@ public class Creature {
 		return new Object[]{closestFood, closestDistance};
 	}
 	
+	// this finds the closest creature searching only within it's view without slowing down the simulation
 	private Object[] findClosestCreature() throws InterruptedException{
 		Creature closestCreature = null;
 		double closestDistance = Double.MAX_VALUE;
