@@ -3,6 +3,8 @@
 A real-time, multi-threaded life-simulation written in **Java + JavaFX**.  
 Autonomous creatures roam a 2D world, hunt food, fight each other, reproduce, mutate, and die — all driven by a decoupled brain/body architecture and a thread-safe spatial grid.
 
+Made by **Marco Bompani** and **Edward K Aiddo**
+
 ---
 
 ## Table of Contents
@@ -23,7 +25,6 @@ Autonomous creatures roam a 2D world, hunt food, fight each other, reproduce, mu
 14. [Reproduction & Mutation](#14-reproduction--mutation)
 15. [Rendering Pipeline (JavaFX Thread)](#15-rendering-pipeline-javafx-thread)
 16. [Save & Load System](#16-save--load-system)
-17. [Class Reference](#17-class-reference)
 
 ---
 
@@ -595,31 +596,3 @@ Save is triggered by the **Save** button:
 5. All threads are restarted.
 
 Load is symmetric: Jackson deserializes the JSON, reconstructs `Creature[]` from `CreatureSaveData[]`, and restores `lastReproductionTime` via a stored offset (`lastReproductionTimeOffset = now − lastReproductionTime` at save time).
-
----
-
-## 17. Class Reference
-
-| Class                                                                                                                                                                       | Role                                                                                   |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [`App`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/App.java)                                                                       | JavaFX `Application`; world constants, init, GUI, global creature counter              |
-| [`Creature`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/Creature.java)                                                             | Entity state + `update()` execution loop + movement/eat/attack/reproduce               |
-| [`CreatureBrain`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/CreatureBrain.java)                                                   | Stateful FSM; owns persistent target; `think()` → action int                           |
-| [`CreatureWorker`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/CreatureWorker.java)                                                 | Worker thread; loops calling `actionHandler.updateCreature()`                          |
-| [`CreatureActionHandler`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/CreatureActionHandler.java)                                   | Owns a round-robin index; locks creature, calls `update()`, advances counter           |
-| [`ThreadSafeCreatureUpdateCounter`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/ThreadSafeCreatureUpdateCounter.java)               | Shared counter that distributes creature indices to workers; enforces 10 ms tick floor |
-| [`BackgroundGridElement`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/BackgroundGridElement.java)                                   | Grid cell: stores one `foodId` and one `creatureId` (`-1` = empty)                     |
-| [`ThreadSafeBackgroundGrid`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/ThreadSafeBackgroundGrid.java)                             | Synchronized grid operations: add/move/remove creature                                 |
-| [`ThreadSafeCreaturesArray`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/ThreadSafeCreaturesArray.java)                             | Blocking exclusive `request/release` + lightweight `getCreature` read                  |
-| [`ThreadSafeFoodArray`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/ThreadSafeFoodArray.java)                                       | Same pattern for food; includes `requestAdd` / `requestRemove`                         |
-| [`Food`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/Food.java)                                                                     | Simple data object: id, categoryId, x, y; `FOOD_WIDTH = FOOD_HEIGHT = 10`              |
-| [`FoodGeneratorThread`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/FoodGeneratorThread.java)                                       | Generates up to 100 food items per second into empty grid cells                        |
-| [`MovmentHandlingThread`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/MovmentHandlingThread.java)                                   | Takes snapshots of simulation state, posts `Platform.runLater` for rendering           |
-| [`ThreadSafeUpdateMapQueueCounter`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/ThreadSafeUpdateMapQueueCounter.java)               | Rate-limits pending render calls to max 1 at a time                                    |
-| [`UpdateGuiRunnableGenerator`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/UpdateGuiRunnableGenerator.java)                         | Factory for the JavaFX-thread `Runnable` that calls `MapGraphicsHandler.update()`      |
-| [`MapGraphicsHandler`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/MapGraphicsHandler.java)                                         | Canvas rendering: background tiling, creature rectangles, food ovals, camera pan/zoom  |
-| [`CreatureInfoDisplayThread`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/CreatureInfoDisplayThread.java)                           | Polls selected creature stats at 10 Hz, posts to right sidebar via `Platform.runLater` |
-| [`UpdateCreatureDisplayRunnableGenerator`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/UpdateCreatureDisplayRunnableGenerator.java) | Factory for sidebar update `Runnable`                                                  |
-| [`CreatureSaveData`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/CreatureSaveData.java)                                             | Jackson-serializable snapshot of a `Creature`; stores color as R/G/B doubles           |
-| [`MovmentTargetOutput`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/MovmentTargetOutput.java)                                       | Simple (x, y) value object                                                             |
-| [`SystemInfo`](file:///c:/Users/aiddo/Desktop/ProgettoGit/-d-life/sample/src/main/java/org/openjfx/SystemInfo.java)                                                         | Utility class for system version info                                                  |
