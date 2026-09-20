@@ -24,7 +24,7 @@ public class Creature {
 	private static final long ATTACK_COOLDOWN = 500;
 	private double reproductionRate;
 	private long lastReproductionTime = 0;
-	public static final long REPRODUCTION_COOLDOWN = 10000;
+	public static final long REPRODUCTION_COOLDOWN = 100000;
 	private ThreadSafeFoodArray foodArray;
 	private ThreadSafeCreaturesArray creatureArray;
 	private BackgroundGridElement[][] backgroundGrid;
@@ -172,7 +172,7 @@ public class Creature {
 						target.takeDamage(weightedAttack);
 						lastAttackTime = currentTime;
 
-						this.setHunger(this.getHunger() + this.getBaseAttack() * 2);
+						this.setHunger(this.getHunger() + this.getBaseAttack() /20);
 
 						if(target == null || target.getHp() <= 0 || target.getHunger() >= 100){
 							this.brain.setCreatureTarget(null);

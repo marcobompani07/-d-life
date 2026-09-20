@@ -59,7 +59,8 @@ public class CreatureBrain {
 		}
 
 		long currentTime = System.currentTimeMillis();
-		boolean isCooldownReady = (currentTime - callingCreature.getLastReproductionTime()) >= Creature.REPRODUCTION_COOLDOWN;
+		long timeSinceReproduction=currentTime - (long)callingCreature.getLastReproductionTime();
+		boolean isCooldownReady = (timeSinceReproduction) >= Creature.REPRODUCTION_COOLDOWN;
 		boolean isWellFedAndHealthy = (hunger < 30.0) && (hp >= maxHp * 0.80);
 
 		// Creature tries to reproduce if cooldown is expired and it's in good health
@@ -83,7 +84,7 @@ public class CreatureBrain {
 		}
 
 		// if possible fight target creature or hunt him, otherwise move randomly
-		if(creatureTarget != null && creatureTarget.getHp() > 0){
+		if(creatureTarget != null && creatureTarget.getHp() > 0&&timeSinceReproduction>3000){
 			double targetDistance = callingCreature.getDistanceToCreature(creatureTarget);
 
 			if(targetDistance <= attackRange * 10){
