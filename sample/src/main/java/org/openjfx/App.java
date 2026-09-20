@@ -40,7 +40,6 @@ public class App extends Application {
     private static final int MAX_CREATURES = 2000;
 	private static final int INITIAL_CREATURES = 200;
     private static final int FOODSPAWNOUNT = 100;
-    private static final boolean startFormSave=false;
     
 
 	private static int nextCreatureId = 0;
